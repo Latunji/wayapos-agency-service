@@ -1,36 +1,36 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: external-service
+  name: wayapos-agency-service
   labels:
-    app: external-service
+    app: wayapos-agency-service
 spec:
   ports:
   - name: http
     port: 80
     targetPort: 80
   selector:
-    app: external-service
+    app: wayapos-agency-service
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: external-service
+  name: wayapos-agency-service
   labels:
-    app: external-service
+    app: wayapos-agency-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: external-service
+      app: wayapos-agency-service
   template:
     metadata:
       labels:
-        app: external-service
+        app: wayapos-agency-service
     spec:
       containers:
-      - name: external-service
-        image: 863852973330.dkr.ecr.eu-west-2.amazonaws.com/external-service:imgtag
+      - name: wayapos-agency-service
+        image: 863852973330.dkr.ecr.eu-west-2.amazonaws.com/wayapos-agency-service:imgtag
         envFrom:
         - configMapRef:
             name: common-services-config
@@ -44,4 +44,4 @@ spec:
       volumes:
         - name: config-file
           secret:
-            secretName: external-service-config-file # name of the Secret
+            secretName: wayapos-agency-service-config-file # name of the Secret
