@@ -1,4 +1,4 @@
-package com.example.techservice.model;
+package com.example.agentservice.model;
 
 @lombok.Data
 public class User{

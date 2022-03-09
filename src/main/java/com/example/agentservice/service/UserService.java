@@ -1,7 +1,6 @@
-package com.example.techservice.service;
+package com.example.agentservice.service;
 
-import com.example.techservice.model.Response;
-import com.example.techservice.model.User;
+import com.example.agentservice.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static com.example.techservice.constants.Constants.*;
+import static com.example.agentservice.constants.Constants.AUTH_HEADER;
 
 @Slf4j @Transactional @RequiredArgsConstructor @Service
 public class UserService {

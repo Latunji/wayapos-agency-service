@@ -1,4 +1,4 @@
-package com.example.techservice.model;
+package com.example.agentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
