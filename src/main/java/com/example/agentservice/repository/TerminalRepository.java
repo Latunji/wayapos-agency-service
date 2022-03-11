@@ -14,5 +14,5 @@ import java.util.List;
 public interface TerminalRepository extends JpaRepository<Terminal,Long> {
     List<Terminal> findByMerchantsIsNullAndUserId(String userID);
     Terminal findByIdAndMerchantsNotNullAndUserId(Long id,String userId);
-    Page<Terminal>findByMerchants_IdAndUserId(Long id, String userId, Pageable pageable);
+    List<Terminal>findByMerchants_IdAndUserId(Long id, String userId);
 }

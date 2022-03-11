@@ -1,6 +1,7 @@
 package com.example.agentservice.service;
 
 import com.example.agentservice.dto.AssignDto;
+import com.example.agentservice.dto.AuditDto;
 import com.example.agentservice.dto.MerchantDto;
 import com.example.agentservice.dto.ViewDto;
 import com.example.agentservice.model.Merchants;
@@ -23,11 +24,14 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.example.agentservice.constants.Constants.*;
 
 @Service @RequiredArgsConstructor @Slf4j @Transactional
 public class MerchantServiceImpl implements MerchantService {
+    ExecutorService executors = Executors.newCachedThreadPool();
     @Value("${user.auth.endpoint}")
     String url;
     private final ModelMapper modelMapper;
@@ -36,10 +40,10 @@ public class MerchantServiceImpl implements MerchantService {
     private final MerchantRepository merchantRepository;
     private final UserService userService;
     private final TerminalRepository terminalRepository;
+    private final LogService logService;
     Response response = new Response();
     @Override
     public Response registerMerchant(String authHeader, MerchantDto merchantDto) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -77,14 +81,18 @@ public class MerchantServiceImpl implements MerchantService {
 
 
         Merchants save = merchantRepository.save(merchants);
-
         log.info("merchants saved successfully {}",save);
+
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                        .userID(user.getData().getId())
+                        .activity(user.getData().getFirstName()+" registered a merchant "+"Name:"+
+                                merchants.getFirstname()+" ID: "+merchants.getMerchantId())
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,save);
     }
 
     @Override
     public Response updateMerchant(String authHeader, MerchantDto merchantDto) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -99,16 +107,29 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Merchant with id "+merchantDto.getMerchantId()+ " not found");
         }
         log.info("merchant gotten {} ",merchants);
-        modelMapper.map(merchantDto,merchants);
+        merchants.setMerchantId(merchantDto.getMerchantId());
+        merchants.setFirstname(merchantDto.getFirstname());
+        merchants.setSurname(merchantDto.getSurname());
+        merchants.setEmail(merchantDto.getEmail());
+        merchants.setDob(merchantDto.getDob());
+        merchants.setGender(merchantDto.getGender());
+        merchants.setAddress(merchantDto.getAddress());
+        merchants.setState(merchantDto.getState());
         merchants.setModifiedAt(new Date());
+        merchants.setUserId(user.getData().getId());
         log.info("Merchant updated to {}",merchants);
         Merchants save = merchantRepository.save(merchants);
+
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" updated a merchant "+"Name:"+
+                        save.getFirstname()+" ID: "+save.getMerchantId())
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,save);
     }
 
     @Override
     public Response viewMerchantById(String authHeader, Long merchantId) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -123,12 +144,16 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"merchants not found for id "+merchantId);
         }
         log.info("merchant gotten for ID {} is {}",merchantId,merchants);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" viewd merchants "+"Name:"+
+                        merchants.getFirstname()+" ID: "+merchants.getMerchantId())
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,merchants);
     }
 
     @Override
     public Response viewAllMerchants(String authHeader, ViewDto viewDto) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -142,13 +167,15 @@ public class MerchantServiceImpl implements MerchantService {
 
         Page<Merchants> merchantsPage = merchantRepository.findAll( pageable);
         log.info("view all merchants by superadmin result is {}",merchantsPage);
-
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" viewed all merchants")
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,merchantsPage);
     }
 
     @Override
     public Response viewAllMerchantsByUserId(String authHeader, ViewDto viewDto) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -171,13 +198,15 @@ public class MerchantServiceImpl implements MerchantService {
 
         Page<Merchants> merchantsPage = merchantRepository.findAll(Example.of(merchants), pageable);
         log.info("view all merchants by user result is {}",merchantsPage);
-
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" viewed all merchants for merchant ")
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,merchantsPage);
     }
 
     @Override
     public Response deleteMerchant(String authHeader, Long merchantId) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -192,13 +221,17 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"merchants not found for id "+merchantId);
         }
         log.info("merchant about to be deleted {}",merchants);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" deleted merchant  "+merchants.getFirstname())
+                .build()) );
         merchantRepository.delete(merchants);
         log.info("merchant successfully deleted");
-        return new Response(SUCCESS_CODE,SUCCESS,"merchant successfully deleted for ID "+merchantId);    }
+        return new Response(SUCCESS_CODE,SUCCESS,"merchant successfully deleted for ID "+merchantId);
+    }
 
     @Override
     public Response getUnAssignedTerminals(String authHeader) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -209,13 +242,15 @@ public class MerchantServiceImpl implements MerchantService {
 
         List<Terminal> byMerchantsIsNull = terminalRepository.findByMerchantsIsNullAndUserId(user.getData().getId());
         log.info("List of unassigned terminals {}",byMerchantsIsNull);
-
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" fetched all unassigned terminals ")
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,byMerchantsIsNull);
     }
 
     @Override
     public Response assignTerminalsToMerchantsr(String authHeader, AssignDto assignDto) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -254,13 +289,15 @@ public class MerchantServiceImpl implements MerchantService {
         log.info("about mapping {}",res);
         List<Terminal> terminals = terminalRepository.saveAll(res);
         log.info("terminals successfully mapped {}",terminals);
-
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" Assigned terminals to merchants")
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,terminals);
     }
 
     @Override
     public Response unassignTerminals(String authHeader, AssignDto assignDto) {
-        log.info("About validating user token with auth endpoint {}",url);
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -291,13 +328,44 @@ public class MerchantServiceImpl implements MerchantService {
         log.info("about unmapping {}",res);
         List<Terminal> terminals = terminalRepository.saveAll(res);
         log.info("terminals successfully unmapped {}",terminals);
-
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" Unassigned terminals from merchants")
+                .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,terminals);
     }
 
     @Override
     public Response getAllTerminalsByMerchant(String authHeader, ViewDto viewDto) {
-        log.info("About validating user token with auth endpoint {}",url);
+        User user = userService.validateUser(authHeader);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+        Long id = Long.parseLong((String) viewDto.getParams().get("id"));
+
+
+        Merchants merchants = merchantRepository.findById(id).orElse(null);
+        if (merchants==null){
+            log.info("merchants cannot be null for id {}",id);
+            return new Response(FAILED_CODE,FAILED,"Merchant id cannot be null");
+        }
+
+//        Pageable pageable = PageRequest.of(viewDto.getPageNo(),viewDto.getPageSize());
+
+        List<Terminal> byMerchants_idAndUserId = terminalRepository.findByMerchants_IdAndUserId(merchants.getId(), user.getData().getId());
+        log.info("Response gotten is {}",byMerchants_idAndUserId);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" fetched all terminals for merchant "+merchants.getFirstname())
+                .build()) );
+        return new Response(SUCCESS_CODE,SUCCESS,byMerchants_idAndUserId);
+    }
+
+    @Override
+    public Response activateMerchant(String authHeader, String merchantId) {
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -306,17 +374,48 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
-        Merchants merchants = merchantRepository.findById((Long) viewDto.getParams().get("id")).orElse(null);
+        merchantId = merchantId.replace("\"","");
+        
+        Merchants merchants = merchantRepository.findByMerchantIdAndUserId(merchantId,user.getData().getId()).orElse(null);
         if (merchants==null){
-            log.info("merchants cannot be null for id {}",viewDto.getParams().get("id"));
-            return new Response(FAILED_CODE,FAILED,"Merchant id cannot be null");
+            log.error("emrchants not found for merchant id {} and user id {}",merchantId,user.getData().getId());
+            return new Response(FAILED_CODE,FAILED,"merchant not found for merchant id "+merchantId +" and userid "+user.getData().getId());
+        }
+        
+        log.info("merchant gotten {}",merchants);
+        merchants.setActive(true);
+        Merchants save = merchantRepository.save(merchants);
+        log.info("merchant activated {}",save);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" Activated merchantt "+merchants.getFirstname())
+                .build()) );
+        return new Response(SUCCESS_CODE,SUCCESS,save);
+    }
+
+    @Override
+    public Response deactivateMerchant(String authHeader, String merchantId) {
+        User user = userService.validateUser(authHeader);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+        merchantId = merchantId.replace("\"","");
+        Merchants merchants = merchantRepository.findByMerchantIdAndUserId(merchantId,user.getData().getId()).orElse(null);
+        if (merchants==null){
+            log.error("emrchants not found for merchant id {} and user id {}",merchantId,user.getData().getId());
+            return new Response(FAILED_CODE,FAILED,"merchant not found for merchant id "+merchantId +" and userid "+user.getData().getId());
         }
 
-        Pageable pageable = PageRequest.of(viewDto.getPageNo(),viewDto.getPageSize());
-
-        Page<Terminal> byMerchants_idAndUserId = terminalRepository.findByMerchants_IdAndUserId(merchants.getId(), user.getData().getId(), pageable);
-        log.info("Response gotten is {}",byMerchants_idAndUserId);
-
-        return new Response(SUCCESS_CODE,SUCCESS,byMerchants_idAndUserId);
-    }
+        log.info("merchant gotten {}",merchants);
+        merchants.setActive(false);
+        Merchants save = merchantRepository.save(merchants);
+        log.info("merchant activated {}",save);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" Deactivated merchantt "+merchants.getFirstname())
+                .build()) );
+        return new Response(SUCCESS_CODE,SUCCESS,save);    }
 }
