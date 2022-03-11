@@ -8,11 +8,11 @@
         <version>2.5.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>agent-service</artifactId>
+    <groupId>com.wayapaychat</groupId>
+    <artifactId>wayapos-agency-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>agent-service</name>
-    <description>agent-service</description>
+    <name>wayapos-agency-service</name>
+    <description>wayapos-agency-service</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
