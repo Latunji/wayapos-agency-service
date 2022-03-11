@@ -119,6 +119,26 @@ public class MerchantController {
         }
     }
 
+    @PostMapping(ACTIVATE_MERCHANT)
+    public ResponseEntity<Response> activateMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody String merchantId){
+        try {
+            return new ResponseEntity<>(merchantService.activateMerchant(authHeader,merchantId), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping(DEACTIVATE_MERCHANT)
+    public ResponseEntity<Response> deactivateMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody String merchantId){
+        try {
+            return new ResponseEntity<>(merchantService.deactivateMerchant(authHeader,merchantId), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
     @RequestMapping(

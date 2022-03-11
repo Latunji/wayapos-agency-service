@@ -17,4 +17,6 @@ public class Constants {
     public static final String ASSIGN_TERMINAL  = "assignterminal";
     public static final String UNASSIGN_TERMINAL  = "unassignterminal";
     public static final String GET_ALL_TERMINALS_BY_MERCHANT  = "getmerchantterminals";
+    public static final String ACTIVATE_MERCHANT = "activatemerchant";
+    public static final String DEACTIVATE_MERCHANT = "deactivatemerchant";
 }

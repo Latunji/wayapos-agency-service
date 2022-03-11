@@ -16,6 +16,8 @@ public interface MerchantService {
     Response assignTerminalsToMerchantsr(String authHeader, AssignDto assignDto);
     Response unassignTerminals(String authHeader,AssignDto assignDto);
     Response getAllTerminalsByMerchant(String authHeader,ViewDto viewDto);
+    Response activateMerchant(String authHeader,String merchantId);
+    Response deactivateMerchant(String authHeader,String merchantId);
 
 
 
