@@ -45,4 +45,6 @@ waya:
    auth:
      baseurl: ${CONFIG_BASEURL_AUTH:https://services.staging.wayabank.ng/auth-service}
      name: AUTHENTICATION-SERVICE
+
+createMerchantUrl: https://services.staging.wayapos.ng/auth-service/api/v1/auth/create-corporate
    
