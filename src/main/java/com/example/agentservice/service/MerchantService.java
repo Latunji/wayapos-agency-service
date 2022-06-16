@@ -22,4 +22,6 @@ public interface MerchantService {
     Response getAllMerchants(String authHeader);
 
     Response getByAdminType(String authHeader, boolean isAdmin);
+
+    Response getMerchantBalance(String authHeader, ViewDto request);
 }

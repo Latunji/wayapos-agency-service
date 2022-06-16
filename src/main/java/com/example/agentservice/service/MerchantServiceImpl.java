@@ -366,6 +366,11 @@ public class MerchantServiceImpl implements MerchantService {
         List<Merchants> merchants = merchantRepository.findByAdmin(isAdmin);
         return new Response(SUCCESS_CODE,SUCCESS,merchants);    }
 
+    @Override
+    public Response getMerchantBalance(String authHeader, ViewDto request) {
+        return null;
+    }
+
 
     public static String padright(String s, int len, char c) throws Exception {
         s = s.trim();

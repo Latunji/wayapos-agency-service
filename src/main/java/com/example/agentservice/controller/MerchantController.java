@@ -139,6 +139,19 @@ public class MerchantController {
         }
     }
 
+    @PostMapping("getMerchantBalance")
+    public ResponseEntity<Response> getMerchantBalance(@RequestHeader("Authorization") String authHeader,@RequestBody ViewDto request){
+        try {
+            return new ResponseEntity<>(merchantService.getMerchantBalance(authHeader,request), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
+
 
 
 
