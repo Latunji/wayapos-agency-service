@@ -27,7 +27,6 @@ public class Merchants implements Serializable {
     private String email;
     private String dob;
     private String gender;
-    private String address;
     private String phoneNumber;
     private String state;
     @Column(length = 4)
@@ -46,6 +45,11 @@ public class Merchants implements Serializable {
     private short deleted;
     private boolean active;
     private String userId;//this is the corporate user that owns the merchants
-
+    private boolean admin;
+    private String referenceCode;
+    private String orgType;
+    private String orgName;
+    private String officeAddress;
+    private String businessType;
 
 }
