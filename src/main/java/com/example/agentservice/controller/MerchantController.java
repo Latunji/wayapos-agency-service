@@ -1,6 +1,6 @@
 package com.example.agentservice.controller;
 
-import com.example.agentservice.dto.AssignDto;
+import com.example.agentservice.dto.CreateMerchantResponseDTO;
 import com.example.agentservice.dto.MerchantDto;
 import com.example.agentservice.dto.ViewDto;
 import com.example.agentservice.service.MerchantService;
@@ -20,9 +20,9 @@ public class MerchantController {
     private final MerchantService merchantService;
 
     @PostMapping(REGISTER_MERCHANT)
-    public ResponseEntity<Response> registerMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody MerchantDto request){
+    public ResponseEntity<CreateMerchantResponseDTO> registerMerchant(@RequestBody MerchantDto request){
         try {
-            return new ResponseEntity<>(merchantService.registerMerchant(authHeader,request), HttpStatus.OK);
+            return new ResponseEntity<>(merchantService.registerMerchant(request), HttpStatus.OK);
         }catch (Exception e){
             log.info("Error is {}",e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -89,26 +89,6 @@ public class MerchantController {
         }
     }
 
-    @PostMapping(ASSIGN_TERMINAL)
-    public ResponseEntity<Response> assignTerminalsToMerchantsr(@RequestHeader("Authorization") String authHeader, @RequestBody AssignDto request){
-        try {
-            return new ResponseEntity<>(merchantService.assignTerminalsToMerchantsr(authHeader,request), HttpStatus.OK);
-        }catch (Exception e){
-            log.info("Error is {}",e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PostMapping(UNASSIGN_TERMINAL)
-    public ResponseEntity<Response> unassignTerminals(@RequestHeader("Authorization") String authHeader, @RequestBody AssignDto request){
-        try {
-            return new ResponseEntity<>(merchantService.unassignTerminals(authHeader,request), HttpStatus.OK);
-        }catch (Exception e){
-            log.info("Error is {}",e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
     @PostMapping(GET_ALL_TERMINALS_BY_MERCHANT)
     public ResponseEntity<Response> getAllTerminalsByMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody ViewDto request){
         try {
@@ -119,7 +99,7 @@ public class MerchantController {
         }
     }
 
-    @PostMapping(ACTIVATE_MERCHANT)
+    /*@PostMapping(ACTIVATE_MERCHANT)
     public ResponseEntity<Response> activateMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody String merchantId){
         try {
             return new ResponseEntity<>(merchantService.activateMerchant(authHeader,merchantId), HttpStatus.OK);
@@ -138,6 +118,30 @@ public class MerchantController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+*/
+    @GetMapping("getallmerchants")
+    public ResponseEntity<Response> getAllMerchants(@RequestHeader("Authorization") String authHeader){
+        try {
+            return new ResponseEntity<>(merchantService.getAllMerchants(authHeader), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("getByAdminType")
+    public ResponseEntity<Response> getByAdminType(@RequestHeader("Authorization") String authHeader,@RequestBody boolean request){
+        try {
+            return new ResponseEntity<>(merchantService.getByAdminType(authHeader,request), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
+
 
 
 

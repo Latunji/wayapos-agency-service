@@ -1,9 +1,6 @@
 package com.example.agentservice.service;
 
-import com.example.agentservice.dto.AssignDto;
-import com.example.agentservice.dto.AuditDto;
-import com.example.agentservice.dto.MerchantDto;
-import com.example.agentservice.dto.ViewDto;
+import com.example.agentservice.dto.*;
 import com.example.agentservice.model.Merchants;
 import com.example.agentservice.model.Terminal;
 import com.example.agentservice.model.User;
@@ -26,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.example.agentservice.constants.Constants.*;
 
@@ -34,6 +32,8 @@ public class MerchantServiceImpl implements MerchantService {
     ExecutorService executors = Executors.newCachedThreadPool();
     @Value("${user.auth.endpoint}")
     String url;
+    @Value("createMerchantUrl")
+    String createMerchantUrl;
     private final ModelMapper modelMapper;
     private final RestTemplate restTemplate;
     private final WebClient.Builder webClientBuilder;
@@ -43,52 +43,58 @@ public class MerchantServiceImpl implements MerchantService {
     private final LogService logService;
     Response response = new Response();
     @Override
-    public Response registerMerchant(String authHeader, MerchantDto merchantDto) {
-        User user = userService.validateUser(authHeader);
-
-        //validate user is not null
-        if (Objects.isNull(user)){
-            log.error("user validation failed");
-            return new Response(FAILED_CODE,FAILED,"Validation Failed");
-        }
+    public CreateMerchantResponseDTO registerMerchant(MerchantDto merchantDto) throws Exception {
 
         Merchants merchants = Merchants.builder()
-                .merchantId(merchantDto.getMerchantId())
-                .firstname(merchantDto.getFirstname())
+                .firstname(merchantDto.getFirstName())
                 .surname(merchantDto.getSurname())
                 .email(merchantDto.getEmail())
-                .dob(merchantDto.getDob())
+                .dob(merchantDto.getDateOfBirth())
                 .gender(merchantDto.getGender())
-                .address(merchantDto.getAddress())
                 .phoneNumber(merchantDto.getPhoneNumber())
                 .state(merchantDto.getState())
                 .merchantCategoryCode(merchantDto.getMerchantCategoryCode())
-                .merchantNameAndLocation(merchantDto.getMerchantNameAndLocation())
+                .merchantNameAndLocation(buildF43(merchantDto.getFirstName(),merchantDto.getSurname(),"LANG"))
                 .countryCode(merchantDto.getCountryCode())
                 .city(merchantDto.getCity())
                 .currencyCode(merchantDto.getCurrencyCode())
                 .createdAt(new Date())
-                .acquiringInstitutionID(merchantDto.getAcquiringInstitutionID())
-                .userId(user.getData().getId())
+                .acquiringInstitutionID(merchantDto.getAcquiringInstitutionCode())
+                .admin(merchantDto.isAdmin())
+                .businessType(merchantDto.getBusinessType())
+                .orgName(merchantDto.getOrgName())
+                .orgType(merchantDto.getOrgType())
+                .officeAddress(merchantDto.getOfficeAddress())
+                .referenceCode(merchantDto.getReferenceCode())
                 .build();
 
 
-        Merchants merchants1 = merchantRepository.findByMerchantIdAndUserId(merchants.getMerchantId(),user.getData().getId()).orElse(null);
+        Merchants merchants1 = merchantRepository.findByEmail(merchants.getEmail()).orElse(null);
         if (merchants1!=null){
             log.error("merchant ID already exist for {} ",merchants);
-            return new Response(FAILED_CODE,FAILED,"merchant already exists with id "+merchants.getMerchantId());
+            return CreateMerchantResponseDTO.builder()
+                    .timeStamp(new Date().getTime())
+                    .message("Failed")
+                    .status(false)
+                    .data("merchant already exist with name "+ merchantDto.getEmail())
+                    .build();
         }
 
 
         Merchants save = merchantRepository.save(merchants);
         log.info("merchants saved successfully {}",save);
 
-        executors.submit(() ->logService.sendLogs(AuditDto.builder()
-                        .userID(user.getData().getId())
-                        .activity(user.getData().getFirstName()+" registered a merchant "+"Name:"+
+        executors.execute(() ->logService.sendLogs(AuditDto.builder()
+                        .userID(save.getUserId())
+                        .activity(save.getFirstname()+" registered a merchant "+"Name:"+
                                 merchants.getFirstname()+" ID: "+merchants.getMerchantId())
                 .build()) );
-        return new Response(SUCCESS_CODE,SUCCESS,save);
+        CreateMerchantRequestDTO requestDTO = new CreateMerchantRequestDTO();
+        modelMapper.map(merchantDto,requestDTO);
+        Future<CreateMerchantResponseDTO> submit = executors.submit(() -> restTemplate.postForObject(createMerchantUrl, requestDTO, CreateMerchantResponseDTO.class));
+
+
+        return submit.get();
     }
 
     @Override
@@ -101,19 +107,18 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
-        Merchants merchants = merchantRepository.findByMerchantIdAndUserId(merchantDto.getMerchantId(),user.getData().getId()).orElse(null);
-        if (merchants==null){
-            log.error("merchant with ID {} not found ",merchantDto.getMerchantId());
-            return new Response(FAILED_CODE,FAILED,"Merchant with id "+merchantDto.getMerchantId()+ " not found");
+        Merchants merchants = merchantRepository.findByEmail(merchantDto.getEmail()).orElse(null);
+        if (merchants.getEmail()!=user.getData().getEmail()){
+            log.error("merchant with ID {} not found ",merchantDto.getEmail());
+            return new Response(FAILED_CODE,FAILED,"Merchant with email "+merchantDto.getEmail()+ " not found");
         }
         log.info("merchant gotten {} ",merchants);
-        merchants.setMerchantId(merchantDto.getMerchantId());
-        merchants.setFirstname(merchantDto.getFirstname());
+        merchants.setFirstname(merchantDto.getFirstName());
         merchants.setSurname(merchantDto.getSurname());
         merchants.setEmail(merchantDto.getEmail());
-        merchants.setDob(merchantDto.getDob());
+        merchants.setDob(merchantDto.getDateOfBirth());
         merchants.setGender(merchantDto.getGender());
-        merchants.setAddress(merchantDto.getAddress());
+        merchants.setOfficeAddress(merchantDto.getOfficeAddress());
         merchants.setState(merchantDto.getState());
         merchants.setModifiedAt(new Date());
         merchants.setUserId(user.getData().getId());
@@ -250,92 +255,6 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Response assignTerminalsToMerchantsr(String authHeader, AssignDto assignDto) {
-        User user = userService.validateUser(authHeader);
-
-        //validate user is not null
-        if (Objects.isNull(user)){
-            log.error("user validation failed");
-            return new Response(FAILED_CODE,FAILED,"Validation Failed");
-        }
-
-        Merchants merchants = merchantRepository.findById(assignDto.getMerchantID()).orElse(null);
-        if (merchants==null){
-            log.error("Merchant not found for id {}",assignDto.getMerchantID());
-            return new Response(FAILED_CODE,FAILED, "Merchant not found for id "+assignDto.getMerchantID());
-        }
-
-        List<Terminal> res = new ArrayList<>();
-        for (Long id : assignDto.getTerminalIds()){
-            Terminal terminal = terminalRepository.findById(id).orElse(null);
-            if (terminal==null){
-                return new Response(FAILED_CODE,FAILED,"Ensure all terminals are not mapped. check id "+id);
-            }
-            else if (!terminal.getUserId().equals(user.getData().getId())){
-                return new Response(FAILED_CODE,FAILED,"Ensure terminal is issued to uderid  "+user.getData().getId());
-
-            }
-            else if (terminal.getMerchants()!=null){
-                return new Response(FAILED_CODE,FAILED,"terminal already mapped  ");
-
-            }
-            else {
-                terminal.setMerchants(merchants);
-                res.add(terminal);
-            }
-
-
-        }
-        log.info("about mapping {}",res);
-        List<Terminal> terminals = terminalRepository.saveAll(res);
-        log.info("terminals successfully mapped {}",terminals);
-        executors.submit(() ->logService.sendLogs(AuditDto.builder()
-                .userID(user.getData().getId())
-                .activity(user.getData().getFirstName()+" Assigned terminals to merchants")
-                .build()) );
-        return new Response(SUCCESS_CODE,SUCCESS,terminals);
-    }
-
-    @Override
-    public Response unassignTerminals(String authHeader, AssignDto assignDto) {
-        User user = userService.validateUser(authHeader);
-
-        //validate user is not null
-        if (Objects.isNull(user)){
-            log.error("user validation failed");
-            return new Response(FAILED_CODE,FAILED,"Validation Failed");
-        }
-
-        Merchants merchants = merchantRepository.findById(assignDto.getMerchantID()).orElse(null);
-        if (merchants==null){
-            log.error("Merchant not found for id {}",assignDto.getMerchantID());
-            return new Response(FAILED_CODE,FAILED, "Merchant not found for id "+assignDto.getMerchantID());
-        }
-
-        List<Terminal> res = new ArrayList<>();
-        for (Long id : assignDto.getTerminalIds()){
-            Terminal terminal = terminalRepository.findByIdAndMerchantsNotNullAndUserId(id,user.getData().getId());
-            if (terminal==null){
-                return new Response(FAILED_CODE,FAILED,"Ensure all terminals are not mapped. check id "+id);
-            }
-            else {
-                terminal.setMerchants(null);
-                res.add(terminal);
-            }
-
-
-        }
-        log.info("about unmapping {}",res);
-        List<Terminal> terminals = terminalRepository.saveAll(res);
-        log.info("terminals successfully unmapped {}",terminals);
-        executors.submit(() ->logService.sendLogs(AuditDto.builder()
-                .userID(user.getData().getId())
-                .activity(user.getData().getFirstName()+" Unassigned terminals from merchants")
-                .build()) );
-        return new Response(SUCCESS_CODE,SUCCESS,terminals);
-    }
-
-    @Override
     public Response getAllTerminalsByMerchant(String authHeader, ViewDto viewDto) {
         User user = userService.validateUser(authHeader);
 
@@ -418,4 +337,52 @@ public class MerchantServiceImpl implements MerchantService {
                 .activity(user.getData().getFirstName()+" Deactivated merchantt "+merchants.getFirstname())
                 .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,save);    }
+
+    @Override
+    public Response getAllMerchants(String authHeader) {
+        User user = userService.validateUser(authHeader);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+
+        List<Merchants> merchants = merchantRepository.findAll();
+        return new Response(SUCCESS_CODE,SUCCESS,merchants);
+
+    }
+
+    @Override
+    public Response getByAdminType(String authHeader, boolean isAdmin) {
+        User user = userService.validateUser(authHeader);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+
+        List<Merchants> merchants = merchantRepository.findByAdmin(isAdmin);
+        return new Response(SUCCESS_CODE,SUCCESS,merchants);    }
+
+
+    public static String padright(String s, int len, char c) throws Exception {
+        s = s.trim();
+        if (s.length() > len)
+            throw new Exception("invalid len " + s.length() + "/" + len);
+        StringBuilder d = new StringBuilder(len);
+        int fill = len - s.length();
+        d.append(s);
+        while (fill-- > 0)
+            d.append(c);
+        return d.toString();
+    }
+    private static String buildF43(String firstName, String lastName, String country) throws Exception {
+        StringBuilder sb = new StringBuilder(43);
+        String merchantBusinessName = padright(firstName+lastName,23,' ');
+        String city = padright("LAGOS",13,' ');
+
+        return sb.append(merchantBusinessName).append(city).append(country).toString();
+    }
 }

@@ -1,18 +1,9 @@
 package com.example.agentservice.dto;
 
-import com.example.agentservice.model.Terminal;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 @Data
-public class MerchantDto {
+public class CreateMerchantRequestDTO {
     private boolean admin;
     private String businessType;
     private String city;
@@ -30,9 +21,4 @@ public class MerchantDto {
     private String referenceCode;
     private String state;
     private String surname;
-    private String acquiringInstitutionCode;
-    private String countryCode;
-    private String currencyCode;
-    private String merchantCategoryCode;
-
 }
