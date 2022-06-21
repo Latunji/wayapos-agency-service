@@ -4,9 +4,12 @@ import com.example.agentservice.dto.*;
 import com.example.agentservice.model.Merchants;
 import com.example.agentservice.model.Terminal;
 import com.example.agentservice.model.User;
+import com.example.agentservice.model.WayaPosUsers;
 import com.example.agentservice.repository.MerchantRepository;
 import com.example.agentservice.repository.TerminalRepository;
+import com.example.agentservice.repository.WayaPosUsersRepository;
 import com.example.agentservice.util.Response;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -32,8 +35,11 @@ public class MerchantServiceImpl implements MerchantService {
     ExecutorService executors = Executors.newCachedThreadPool();
     @Value("${user.auth.endpoint}")
     String url;
-    @Value("createMerchantUrl")
+    @Value("${createmerchanturl}")
     String createMerchantUrl;
+    @Value("${walletbalanceurl}")
+    String walletBalanceUrl;
+
     private final ModelMapper modelMapper;
     private final RestTemplate restTemplate;
     private final WebClient.Builder webClientBuilder;
@@ -41,7 +47,9 @@ public class MerchantServiceImpl implements MerchantService {
     private final UserService userService;
     private final TerminalRepository terminalRepository;
     private final LogService logService;
+    private final WayaPosUsersRepository wayaPosUsersRepository;
     Response response = new Response();
+    private final Gson gson;
     @Override
     public CreateMerchantResponseDTO registerMerchant(MerchantDto merchantDto) throws Exception {
 
@@ -51,12 +59,12 @@ public class MerchantServiceImpl implements MerchantService {
                 .email(merchantDto.getEmail())
                 .dob(merchantDto.getDateOfBirth())
                 .gender(merchantDto.getGender())
-                .phoneNumber(merchantDto.getPhoneNumber())
+                .phoneNumber("234"+merchantDto.getPhoneNumber().substring(1))
                 .state(merchantDto.getState())
                 .merchantCategoryCode(merchantDto.getMerchantCategoryCode())
                 .merchantNameAndLocation(buildF43(merchantDto.getFirstName(),merchantDto.getSurname(),"LANG"))
-                .countryCode(merchantDto.getCountryCode())
-                .city(merchantDto.getCity())
+                .countryCode("566")
+                .city("566")
                 .currencyCode(merchantDto.getCurrencyCode())
                 .createdAt(new Date())
                 .acquiringInstitutionID(merchantDto.getAcquiringInstitutionCode())
@@ -66,7 +74,10 @@ public class MerchantServiceImpl implements MerchantService {
                 .orgType(merchantDto.getOrgType())
                 .officeAddress(merchantDto.getOfficeAddress())
                 .referenceCode(merchantDto.getReferenceCode())
+                .orgPhone("234"+merchantDto.getOrgPhone().substring(1))
                 .build();
+
+
 
 
         Merchants merchants1 = merchantRepository.findByEmail(merchants.getEmail()).orElse(null);
@@ -81,20 +92,30 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
 
-        Merchants save = merchantRepository.save(merchants);
-        log.info("merchants saved successfully {}",save);
 
-        executors.execute(() ->logService.sendLogs(AuditDto.builder()
-                        .userID(save.getUserId())
-                        .activity(save.getFirstname()+" registered a merchant "+"Name:"+
-                                merchants.getFirstname()+" ID: "+merchants.getMerchantId())
-                .build()) );
         CreateMerchantRequestDTO requestDTO = new CreateMerchantRequestDTO();
         modelMapper.map(merchantDto,requestDTO);
-        Future<CreateMerchantResponseDTO> submit = executors.submit(() -> restTemplate.postForObject(createMerchantUrl, requestDTO, CreateMerchantResponseDTO.class));
+        requestDTO.setPhoneNumber(merchants.getPhoneNumber());
+        requestDTO.setOrgPhone(merchants.getOrgPhone());
+
+        CreateMerchantResponseDTO responseDTO = userService.createMerchant(createMerchantUrl,requestDTO);
+        if (responseDTO.isStatus()){
+            String uid = String.valueOf(new Date().getTime());
+            merchants.setMerchantId("00"+uid);
+            Merchants save = merchantRepository.save(merchants);
+
+            log.info("merchants saved successfully {}",save);
+
+            executors.execute(() ->logService.sendLogs(AuditDto.builder()
+                    .userID(save.getUserId())
+                    .activity(save.getFirstname()+" registered a merchant "+"Name:"+
+                            merchants.getFirstname()+" ID: "+merchants.getMerchantId())
+                    .build()) );
 
 
-        return submit.get();
+        }
+
+        return responseDTO;
     }
 
     @Override
@@ -272,8 +293,6 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Merchant id cannot be null");
         }
 
-//        Pageable pageable = PageRequest.of(viewDto.getPageNo(),viewDto.getPageSize());
-
         List<Terminal> byMerchants_idAndUserId = terminalRepository.findByMerchants_IdAndUserId(merchants.getId(), user.getData().getId());
         log.info("Response gotten is {}",byMerchants_idAndUserId);
         executors.submit(() ->logService.sendLogs(AuditDto.builder()
@@ -336,7 +355,8 @@ public class MerchantServiceImpl implements MerchantService {
                 .userID(user.getData().getId())
                 .activity(user.getData().getFirstName()+" Deactivated merchantt "+merchants.getFirstname())
                 .build()) );
-        return new Response(SUCCESS_CODE,SUCCESS,save);    }
+        return new Response(SUCCESS_CODE,SUCCESS,save);
+    }
 
     @Override
     public Response getAllMerchants(String authHeader) {
@@ -366,9 +386,56 @@ public class MerchantServiceImpl implements MerchantService {
         List<Merchants> merchants = merchantRepository.findByAdmin(isAdmin);
         return new Response(SUCCESS_CODE,SUCCESS,merchants);    }
 
+
+
     @Override
-    public Response getMerchantBalance(String authHeader, ViewDto request) {
-        return null;
+    public Response getMerchantBalance(String authHeader, String userID) {
+        User user = userService.validateUser(authHeader);
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+        String url = walletBalanceUrl.concat("/").concat(userID);
+        MerchantBalanceResponseDTO response = userService.getMerchantBalance(url,authHeader);
+
+        if (response==null){
+            log.info("wallet balance is null for account {}",userID);
+            return new Response(FAILED_CODE,FAILED,"Balance not gotten");
+
+        }
+
+        return new Response(SUCCESS_CODE,SUCCESS,response);
+    }
+
+    @Override
+    public Response createUser(String authHeader, CreateUserDTO request) {
+        User user = userService.validateUser(authHeader);
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+        if (user.getData().getRoles().stream().anyMatch(s -> s.equals("ROLE_CORP_ADMIN"))){
+            WayaPosUsers users1 = wayaPosUsersRepository.findByEmail(request.getEmail()).orElse(null);
+            if (users1==null){
+                WayaPosUsers users = WayaPosUsers.builder()
+                        .fullName(request.getFullName())
+                        .email(request.getEmail())
+                        .build();
+
+                wayaPosUsersRepository.saveAndFlush(users);
+                //todo create wayapay user
+                return new Response(SUCCESS_CODE,SUCCESS,"user "+ request.getEmail()+ " created successfully");
+
+            }
+            else
+                return new Response(FAILED_CODE,FAILED,"user "+ request.getEmail()+ " already exists");
+
+
+        }
+        else {
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Permission not valid for user");
+        }
     }
 
 
@@ -390,4 +457,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         return sb.append(merchantBusinessName).append(city).append(country).toString();
     }
+
+
+
 }

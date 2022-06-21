@@ -1,9 +1,6 @@
 package com.example.agentservice.service;
 
-import com.example.agentservice.dto.AssignDto;
-import com.example.agentservice.dto.CreateMerchantResponseDTO;
-import com.example.agentservice.dto.MerchantDto;
-import com.example.agentservice.dto.ViewDto;
+import com.example.agentservice.dto.*;
 import com.example.agentservice.util.Response;
 
 public interface MerchantService {
@@ -23,5 +20,7 @@ public interface MerchantService {
 
     Response getByAdminType(String authHeader, boolean isAdmin);
 
-    Response getMerchantBalance(String authHeader, ViewDto request);
+    Response getMerchantBalance(String authHeader, String request);
+
+    Response createUser(String authHeader, CreateUserDTO request);
 }

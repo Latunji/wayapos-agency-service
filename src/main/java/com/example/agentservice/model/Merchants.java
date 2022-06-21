@@ -45,10 +45,12 @@ public class Merchants implements Serializable {
     private short deleted;
     private boolean active;
     private String userId;//this is the corporate user that owns the merchants
-    private boolean admin;
+    private Boolean admin;
     private String referenceCode;
     private String orgType;
     private String orgName;
     private String officeAddress;
     private String businessType;
+    private String orgPhone;
+
 }

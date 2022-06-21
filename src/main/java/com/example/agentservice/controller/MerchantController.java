@@ -1,6 +1,7 @@
 package com.example.agentservice.controller;
 
 import com.example.agentservice.dto.CreateMerchantResponseDTO;
+import com.example.agentservice.dto.CreateUserDTO;
 import com.example.agentservice.dto.MerchantDto;
 import com.example.agentservice.dto.ViewDto;
 import com.example.agentservice.service.MerchantService;
@@ -139,10 +140,21 @@ public class MerchantController {
         }
     }
 
-    @PostMapping("getMerchantBalance")
-    public ResponseEntity<Response> getMerchantBalance(@RequestHeader("Authorization") String authHeader,@RequestBody ViewDto request){
+    @GetMapping("getMerchantBalance/{userID}")
+    public ResponseEntity<Response> getMerchantBalance(@RequestHeader("Authorization") String authHeader,@PathVariable("userID") String userID){
         try {
-            return new ResponseEntity<>(merchantService.getMerchantBalance(authHeader,request), HttpStatus.OK);
+            return new ResponseEntity<>(merchantService.getMerchantBalance(authHeader,userID), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @PostMapping("createUser")
+    public ResponseEntity<Response> createUser(@RequestHeader("Authorization") String authHeader,@RequestBody CreateUserDTO request){
+        try {
+            return new ResponseEntity<>(merchantService.createUser(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
             log.info("Error is {}",e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
