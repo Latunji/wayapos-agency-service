@@ -14,7 +14,7 @@ spring:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           show-sql: true
           jdbc:
-            time_zone: UTC
+            time_zone: Africa/Lagos
      open-in-view: false
     
    devtools:
@@ -25,9 +25,9 @@ spring:
          fail-on-empty-beans: false
          
    datasource:
-        url:  jdbc:postgresql://postgresdb:5432/wayapos-agency-service?useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+        url:  jdbc:postgresql://postgresdb:5432/wayapos-processor-service?useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
         username: root
-        password: pONvagaJf3BTbu9l
+        password: ZdnerOIJevhHYrtxwQ5Savusn
         driver-class-name: org.postgresql.Driver
 
 eureka:
