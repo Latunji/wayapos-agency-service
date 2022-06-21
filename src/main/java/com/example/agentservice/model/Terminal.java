@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.*;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -42,16 +41,10 @@ public class Terminal {
     private Date dateUpdated;
     private String updatedBy;
     private boolean assignedFlag;
-    @ManyToOne (cascade = CascadeType.ALL)
+    @ManyToOne
     private Merchants merchants;
 
-
-    public String computeAmountLeft(){
-        BigDecimal amountPaidBigDecimal = new BigDecimal(amountPaid);
-        BigDecimal terminalAmountDecimal = new BigDecimal(terminalAmount);
-        BigDecimal amountLeftDecimal = terminalAmountDecimal.subtract(amountPaidBigDecimal);
-        return amountLeftDecimal.toPlainString();
-    }
+    private String terminalIP;
 
 
 }
