@@ -43,7 +43,7 @@ public class Merchants implements Serializable {
     @Column(length = 4)
     private String acquiringInstitutionID;
     private short deleted;
-    private boolean active;
+    private Boolean active;
     private String userId;//this is the corporate user that owns the merchants
     private Boolean admin;
     private String referenceCode;
