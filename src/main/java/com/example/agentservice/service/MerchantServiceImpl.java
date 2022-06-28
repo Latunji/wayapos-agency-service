@@ -266,7 +266,7 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
-        List<Terminal> byMerchantsIsNull = terminalRepository.findByMerchantsIsNullAndUserId(user.getData().getId());
+        List<Terminal> byMerchantsIsNull = terminalRepository.findAllByMerchantsIsNullAndMerchants_UserId(user.getData().getId());
         log.info("List of unassigned terminals {}",byMerchantsIsNull);
         executors.submit(() ->logService.sendLogs(AuditDto.builder()
                 .userID(user.getData().getId())
@@ -293,7 +293,7 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Merchant id cannot be null");
         }
 
-        List<Terminal> byMerchants_idAndUserId = terminalRepository.findByMerchants_IdAndUserId(merchants.getId(), user.getData().getId());
+        List<Terminal> byMerchants_idAndUserId = terminalRepository.findByMerchants_IdAndMerchantsUserId(merchants.getId(), user.getData().getId());
         log.info("Response gotten is {}",byMerchants_idAndUserId);
         executors.submit(() ->logService.sendLogs(AuditDto.builder()
                 .userID(user.getData().getId())
@@ -397,7 +397,7 @@ public class MerchantServiceImpl implements MerchantService {
         }
         String url = walletBalanceUrl.concat("/").concat(userID);
         MerchantBalanceResponseDTO response = userService.getMerchantBalance(url,authHeader);
-
+        response.getData().setAccountName(user.getData().getFirstName()+ " "+ user.getData().getSurname());
         if (response==null){
             log.info("wallet balance is null for account {}",userID);
             return new Response(FAILED_CODE,FAILED,"Balance not gotten");
@@ -408,36 +408,26 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Response createUser(String authHeader, CreateUserDTO request) {
-        User user = userService.validateUser(authHeader);
-        if (Objects.isNull(user)){
-            log.error("user validation failed");
-            return new Response(FAILED_CODE,FAILED,"Validation Failed");
-        }
-        if (user.getData().getRoles().stream().anyMatch(s -> s.equals("ROLE_CORP_ADMIN"))){
-            WayaPosUsers users1 = wayaPosUsersRepository.findByEmail(request.getEmail()).orElse(null);
-            if (users1==null){
-                WayaPosUsers users = WayaPosUsers.builder()
-                        .fullName(request.getFullName())
-                        .email(request.getEmail())
-                        .build();
+    public Response updateMerchantUserID(UpdateMerchantIDRequest request) {
+        log.info("About updateing merchant user id");
 
-                wayaPosUsersRepository.saveAndFlush(users);
-                //todo create wayapay user
-                return new Response(SUCCESS_CODE,SUCCESS,"user "+ request.getEmail()+ " created successfully");
-
-            }
-            else
-                return new Response(FAILED_CODE,FAILED,"user "+ request.getEmail()+ " already exists");
-
+        Merchants merchants = merchantRepository.findByEmail(request.getEmail()).orElse(null);
+        if (merchants==null){
+            return new Response(FAILED_CODE,FAILED,"merchant not found");
 
         }
-        else {
-            log.error("user validation failed");
-            return new Response(FAILED_CODE,FAILED,"Permission not valid for user");
+
+        else{
+            if (merchants.getUserId() == null ||merchants.getUserId().isEmpty()|| merchants.getUserId().equals(""))
+                merchants.setUserId(request.getUserID());
+            log.info("user id updated for merchant");
+            merchantRepository.save(merchants);
+            return new Response(SUCCESS_CODE,SUCCESS,"merchant user id updated successfuly");
+
         }
+
+
     }
-
 
     public static String padright(String s, int len, char c) throws Exception {
         s = s.trim();

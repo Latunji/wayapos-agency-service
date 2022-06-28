@@ -1,9 +1,10 @@
 package com.example.agentservice.model;
 
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Setter
@@ -17,5 +18,7 @@ public class WayaPosUsers {
     private Long id;
     private String fullName;
     private String email;
+    private String roles;
+
 
 }

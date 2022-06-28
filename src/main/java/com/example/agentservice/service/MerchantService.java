@@ -22,5 +22,5 @@ public interface MerchantService {
 
     Response getMerchantBalance(String authHeader, String request);
 
-    Response createUser(String authHeader, CreateUserDTO request);
+    Response updateMerchantUserID(UpdateMerchantIDRequest request);
 }

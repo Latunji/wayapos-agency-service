@@ -8,5 +8,5 @@ import java.util.List;
 public class CreateUserDTO {
     private String fullName;
     private String email;
-    private List<String> roleName;
+    private List<String> roles;
 }
