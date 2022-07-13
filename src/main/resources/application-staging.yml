@@ -47,8 +47,7 @@ waya:
      name: AUTHENTICATION-SERVICE
 
 createMerchantUrl: https://services.staging.wayapos.ng/auth-service/api/v1/auth/create-corporate
-walletbalanceurl: https://services.staging.wayapos.ng/temporal-service/api/v1/wallet/default
-
+walletbalanceurl: https://services.staging.wayabank.ng/temporal-service/api/v1/wallet/default
 user:
   auth:
     endpoint:

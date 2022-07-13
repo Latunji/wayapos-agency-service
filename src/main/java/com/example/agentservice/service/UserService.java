@@ -1,9 +1,6 @@
 package com.example.agentservice.service;
 
-import com.example.agentservice.dto.CreateMerchantRequestDTO;
-import com.example.agentservice.dto.CreateMerchantResponseDTO;
-import com.example.agentservice.dto.CreateUserDTO;
-import com.example.agentservice.dto.MerchantBalanceResponseDTO;
+import com.example.agentservice.dto.*;
 import com.example.agentservice.dto.priviledgesDTO.Root;
 import com.example.agentservice.model.User;
 import com.example.agentservice.model.WayaPosUsers;
@@ -21,7 +18,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static com.example.agentservice.constants.Constants.*;
@@ -60,7 +56,9 @@ public class UserService {
         return user;
     }
 
-    public MerchantBalanceResponseDTO getMerchantBalance(String url, String authHeader){
+    public WalletBalanceStreamedResponse getMerchantBalance(String url, String authHeader){
+        WalletBalanceStreamedResponse response = new WalletBalanceStreamedResponse();
+
         log.info("About fetching user balance");
         MerchantBalanceResponseDTO responseDTO;
         try {
@@ -73,12 +71,21 @@ public class UserService {
                     .retrieve()
                     .bodyToMono(MerchantBalanceResponseDTO.class)
                     .block();
+
+            if (responseDTO==null)
+                return null;
+            response.setAccountName(responseDTO.getData().getAcct_name());
+            response.setAccountNo(responseDTO.getData().getAccountNo());
+            response.setBranchId(responseDTO.getData().getBacid());
+            response.setCurrencyCode(responseDTO.getData().getAcct_crncy_code());
+            response.setBalance(responseDTO.getData().getClr_bal_amt());
+
         }catch (Exception e){
             log.error("error fetching user balance for url {}",url);
             return null;
         }
-        log.info("user balance gotten {}",responseDTO.getData().getBalance());
-        return responseDTO;
+        log.info("user balance gotten {}",response.getBalance());
+        return response;
     }
 
 

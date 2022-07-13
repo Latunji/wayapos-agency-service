@@ -396,8 +396,10 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
         String url = walletBalanceUrl.concat("/").concat(userID);
-        MerchantBalanceResponseDTO response = userService.getMerchantBalance(url,authHeader);
-        response.getData().setAccountName(user.getData().getFirstName()+ " "+ user.getData().getSurname());
+        WalletBalanceStreamedResponse response = userService.getMerchantBalance(url,authHeader);
+
+        log.info("wallet balance is {}}",response.toString());
+
         if (response==null){
             log.info("wallet balance is null for account {}",userID);
             return new Response(FAILED_CODE,FAILED,"Balance not gotten");
