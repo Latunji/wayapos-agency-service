@@ -25,7 +25,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.registerMerchant(request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -35,7 +35,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.updateMerchantUserID(request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -47,7 +47,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.updateMerchant(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -57,7 +57,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.viewMerchantById(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -67,7 +67,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.viewAllMerchants(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -77,7 +77,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.viewAllMerchantsByUserId(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -87,7 +87,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.deleteMerchant(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -97,7 +97,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.getUnAssignedTerminals(authHeader), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -107,7 +107,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.getAllTerminalsByMerchant(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -137,7 +137,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.getAllMerchants(authHeader), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -147,7 +147,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.getByAdminType(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -157,7 +157,7 @@ public class MerchantController {
         try {
             return new ResponseEntity<>(merchantService.getMerchantBalance(authHeader,userID), HttpStatus.OK);
         }catch (Exception e){
-            log.info("Error is {}",e);
+            log.info("Error is {}",e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
