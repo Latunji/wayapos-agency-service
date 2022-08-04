@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import javax.persistence.Column;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,8 +101,15 @@ public class MerchantServiceImpl implements MerchantService {
 
         CreateMerchantResponseDTO responseDTO = userService.createMerchant(createMerchantUrl,requestDTO);
         if (responseDTO.isStatus()){
+            Short num = 0;
             String uid = String.valueOf(new Date().getTime());
             merchants.setMerchantId("00"+uid);
+            merchants.setActive(Boolean.FALSE);
+            merchants.setDeleted(num);
+            merchants.setModifiedAt(new Date());
+
+            log.info("merchant to be saved  {}",merchants);
+
             Merchants save = merchantRepository.save(merchants);
 
             log.info("merchants saved successfully {}",save);
