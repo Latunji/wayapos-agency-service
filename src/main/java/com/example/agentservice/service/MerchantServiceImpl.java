@@ -104,6 +104,11 @@ public class MerchantServiceImpl implements MerchantService {
             Short num = 0;
             String uid = String.valueOf(new Date().getTime());
             merchants.setMerchantId("00"+uid);
+            merchants.setActive(Boolean.FALSE);
+            merchants.setDeleted(num);
+            merchants.setModifiedAt(new Date());
+
+            log.info("merchant to be saved  {}",merchants);
 
             Merchants save = merchantRepository.save(merchants);
 
