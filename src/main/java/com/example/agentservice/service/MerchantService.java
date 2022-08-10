@@ -8,7 +8,7 @@ public interface MerchantService {
     Response updateMerchant(String authHeader, MerchantDto merchantDto);
     Response viewMerchantById(String authHeader, Long merchantId);
 
-    Response viewMerchantByUserId(String authHeader, String userId);
+    Response viewMerchantByMerchantId(String authHeader, String merchantId);
     Response viewAllMerchants(String authHeader, ViewDto viewDto);
     Response viewAllMerchantsByUserId(String authHeader, ViewDto viewDto);
     Response deleteMerchant(String authHeader, Long merchantId);

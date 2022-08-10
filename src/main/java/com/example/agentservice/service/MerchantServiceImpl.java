@@ -212,7 +212,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Response viewMerchantByUserId(String authHeader, String userId) {
+    public Response viewMerchantByMerchantId(String authHeader, String merchantId) {
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -221,12 +221,12 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
-        Merchants merchants = merchantRepository.findByUserId(userId).orElse(null);
+        Merchants merchants = merchantRepository.findByMerchantId(merchantId).orElse(null);
         if (merchants==null){
             log.error("merchant not found for id {}",merchants);
-            return new Response(FAILED_CODE,FAILED,"merchants not found for user id "+userId);
+            return new Response(FAILED_CODE,FAILED,"merchants not found for Merchant id "+merchantId);
         }
-        log.info("merchant gotten for UserID {} is {}",userId,merchants);
+        log.info("merchant gotten for UserID {} is {}",merchantId,merchants);
         executors.submit(() ->logService.sendLogs(AuditDto.builder()
                 .userID(user.getData().getId())
                 .activity(user.getData().getFirstName()+" viewd merchants "+"Name:"+
