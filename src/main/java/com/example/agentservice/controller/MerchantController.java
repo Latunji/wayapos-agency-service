@@ -62,6 +62,16 @@ public class MerchantController {
         }
     }
 
+    @PostMapping(VIEW_MERCHANT_BY_USERID)
+    public ResponseEntity<Response> viewMerchantByUserId(@RequestHeader("Authorization") String authHeader, @RequestBody String userId){
+        try {
+            return new ResponseEntity<>(merchantService.viewMerchantByUserId(authHeader,userId), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping(VIEW_ALL_MERCHANTS)
     public ResponseEntity<Response> viewAllMerchants(@RequestHeader("Authorization") String authHeader, @RequestBody ViewDto request){
         try {
