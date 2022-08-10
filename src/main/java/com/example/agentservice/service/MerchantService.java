@@ -7,8 +7,6 @@ public interface MerchantService {
     CreateMerchantResponseDTO registerMerchant(MerchantDto merchantDto) throws Exception;
     Response updateMerchant(String authHeader, MerchantDto merchantDto);
     Response viewMerchantById(String authHeader, Long merchantId);
-
-    Response viewMerchantByUserId(String authHeader, String userId);
     Response viewAllMerchants(String authHeader, ViewDto viewDto);
     Response viewAllMerchantsByUserId(String authHeader, ViewDto viewDto);
     Response deleteMerchant(String authHeader, Long merchantId);
