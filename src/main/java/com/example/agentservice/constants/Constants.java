@@ -10,6 +10,8 @@ public class Constants {
     public static final String REGISTER_MERCHANT  = "registermerchant";
     public static final String UPDATE_MERCHANT  = "updatemerchant";
     public static final String VIEW_MERCHANT_BY_ID  = "viewmerchantbyid";
+
+    public static final String VIEW_MERCHANT_BY_USERID  = "viewmerchantbyuserid";
     public static final String VIEW_ALL_MERCHANTS  = "viewallmerchants";
     public static final String VIEW_ALL_MERCHANTS_BY_USERID  = "viewallmerchantsbyuserid";
     public static final String DELETE_MERCHANT  = "deletemerchant";
