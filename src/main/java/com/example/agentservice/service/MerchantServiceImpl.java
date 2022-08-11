@@ -136,8 +136,11 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
+        log.info("Merchant LoggedIn Email is.. "+user.getData().getEmail());
         Merchants merchants = merchantRepository.findByEmail(user.getData().getEmail()).orElse(null);
-        if (merchants.getEmail()!=user.getData().getEmail()){
+        log.info("Merchant Email is.. "+merchants.getEmail());
+//        if (merchants.getEmail() != (user.getData().getEmail())){
+        if (merchants.getEmail() == null){
             log.error("merchant with ID {} not found ",user.getData().getEmail());
             return new Response(FAILED_CODE,FAILED,"Merchant with email "+user.getData().getEmail()+ " not found");
         }
@@ -146,6 +149,8 @@ public class MerchantServiceImpl implements MerchantService {
         merchants.setSurname(merchantDto.getSurname());
         merchants.setDob(merchantDto.getDateOfBirth());
         merchants.setGender(merchantDto.getGender());
+        merchants.setCity(merchantDto.getCity());
+        merchants.setPhoneNumber(merchantDto.getPhoneNumber());
         merchants.setOfficeAddress(merchantDto.getOfficeAddress());
         merchants.setModifiedAt(new Date());
         merchants.setUserId(user.getData().getId());
