@@ -127,7 +127,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Response updateMerchant(String authHeader, MerchantDto merchantDto) {
+    public Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto) {
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -136,19 +136,17 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
-        Merchants merchants = merchantRepository.findByEmail(merchantDto.getEmail()).orElse(null);
+        Merchants merchants = merchantRepository.findByEmail(user.getData().getEmail()).orElse(null);
         if (merchants.getEmail()!=user.getData().getEmail()){
-            log.error("merchant with ID {} not found ",merchantDto.getEmail());
-            return new Response(FAILED_CODE,FAILED,"Merchant with email "+merchantDto.getEmail()+ " not found");
+            log.error("merchant with ID {} not found ",user.getData().getEmail());
+            return new Response(FAILED_CODE,FAILED,"Merchant with email "+user.getData().getEmail()+ " not found");
         }
         log.info("merchant gotten {} ",merchants);
         merchants.setFirstname(merchantDto.getFirstName());
         merchants.setSurname(merchantDto.getSurname());
-        merchants.setEmail(merchantDto.getEmail());
         merchants.setDob(merchantDto.getDateOfBirth());
         merchants.setGender(merchantDto.getGender());
         merchants.setOfficeAddress(merchantDto.getOfficeAddress());
-        merchants.setState(merchantDto.getState());
         merchants.setModifiedAt(new Date());
         merchants.setUserId(user.getData().getId());
         log.info("Merchant updated to {}",merchants);

@@ -5,7 +5,7 @@ import com.example.agentservice.util.Response;
 
 public interface MerchantService {
     CreateMerchantResponseDTO registerMerchant(MerchantDto merchantDto) throws Exception;
-    Response updateMerchant(String authHeader, MerchantDto merchantDto);
+    Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto);
     Response viewMerchantById(String authHeader, Long merchantId);
 
     Response viewMerchantByMerchantId(String authHeader, String merchantId);
