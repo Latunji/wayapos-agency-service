@@ -137,10 +137,10 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         log.info("Merchant LoggedIn Email is.. "+user.getData().getEmail());
-        Merchants merchants = merchantRepository.findByEmail(user.getData().getEmail()).orElse(null);
-        log.info("Merchant Email is.. "+merchants.getEmail());
+        String loggedInEmail = user.getData().getEmail();
+        Merchants merchants = merchantRepository.findByEmail(loggedInEmail).orElse(null);
 //        if (merchants.getEmail() != (user.getData().getEmail())){
-        if (merchants.getEmail() == null){
+        if (merchants == null){
             log.error("merchant with ID {} not found ",user.getData().getEmail());
             return new Response(FAILED_CODE,FAILED,"Merchant with email "+user.getData().getEmail()+ " not found");
         }
