@@ -1,9 +1,6 @@
 package com.example.agentservice.controller;
 
-import com.example.agentservice.dto.CreateMerchantResponseDTO;
-import com.example.agentservice.dto.MerchantDto;
-import com.example.agentservice.dto.UpdateMerchantIDRequest;
-import com.example.agentservice.dto.ViewDto;
+import com.example.agentservice.dto.*;
 import com.example.agentservice.service.MerchantService;
 import com.example.agentservice.util.Response;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +40,7 @@ public class MerchantController {
 
 
     @PostMapping(UPDATE_MERCHANT)
-    public ResponseEntity<Response> updateMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody MerchantDto request){
+    public ResponseEntity<Response> updateMerchant(@RequestHeader("Authorization") String authHeader, @RequestBody MerchantUpdateDto request){
         try {
             return new ResponseEntity<>(merchantService.updateMerchant(authHeader,request), HttpStatus.OK);
         }catch (Exception e){
