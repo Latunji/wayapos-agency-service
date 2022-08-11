@@ -214,6 +214,30 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    public Response viewMerchantByUserId(String authHeader, String userId) {
+        User user = userService.validateUser(authHeader);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+
+        Merchants merchants = merchantRepository.findByUserId(userId).orElse(null);
+        if (merchants==null){
+            log.error("merchant not found for id {}",merchants);
+            return new Response(FAILED_CODE,FAILED,"merchants not found for User id "+userId);
+        }
+        log.info("merchant gotten for UserID {} is {}",userId,merchants);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                .userID(user.getData().getId())
+                .activity(user.getData().getFirstName()+" viewd merchants "+"Name:"+
+                        merchants.getFirstname()+" ID: "+merchants.getMerchantId())
+                .build()) );
+        return new Response(SUCCESS_CODE,SUCCESS,merchants);
+    }
+
+    @Override
     public Response viewAllMerchants(String authHeader, ViewDto viewDto) {
         User user = userService.validateUser(authHeader);
 
