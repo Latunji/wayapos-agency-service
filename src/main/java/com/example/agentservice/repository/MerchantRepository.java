@@ -12,6 +12,8 @@ public interface MerchantRepository extends JpaRepository<Merchants,Long> {
     Optional<Merchants> findByMerchantIdAndUserId(String merchantId,String userId);
     Optional<Merchants> findByEmail(String email);
 
+    List<Merchants> findAllByEmail(String email);
+
     Optional<Merchants> findByMerchantId(String merchantId);
 
     Optional<Merchants> findByUserId(String userId);

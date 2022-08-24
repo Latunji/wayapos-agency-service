@@ -55,3 +55,7 @@ user:
       getRoles: https://services.staging.wayabank.ng/auth-service/api/v1/admin/manage-user/roles
 
 
+kyc:
+  endpoint:
+    createkyc: https://services.staging.wayapos.ng/kyc-service/kyc/createkyc
+    addkyc: https://services.staging.wayapos.ng/kyc-service/kyc/manage-requirement/admin/add

@@ -8,6 +8,8 @@ public class Constants {
     public static final String SUCCESS  = "Successful";
     public static final String AUTH_HEADER  = "authorization";
     public static final String REGISTER_MERCHANT  = "registermerchant";
+
+    public static final String SEARCH_MERCHANT = "searchmerchant";
     public static final String UPDATE_MERCHANT  = "updatemerchant";
     public static final String VIEW_MERCHANT_BY_ID  = "viewmerchantbyid";
 

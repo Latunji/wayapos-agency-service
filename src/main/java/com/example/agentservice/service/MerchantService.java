@@ -8,6 +8,8 @@ public interface MerchantService {
     Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto);
     Response viewMerchantById(String authHeader, Long merchantId);
 
+    Response searchMerchant(String authHeader, SearchDto searchDto);
+
     Response viewMerchantByUserId(String authHeader, String userId);
 
     Response viewMerchantByMerchantId(String authHeader, String merchantId);
