@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -32,6 +33,9 @@ public class UserService {
     String getAllPriviledgesUrl;
     @Value("${user.auth.endpoint.getRoles}")
     String getAllRoles;
+
+    @Value("${kyc.endpoint.createkyc}")
+    String createKyc;
     private final WebClient.Builder webClientBuilder;
     private final WayaPosUsersRepository wayaPosUsersRepository;
 
@@ -165,6 +169,32 @@ public class UserService {
         log.info("merchant created");
         return new Response(SUCCESS_CODE,SUCCESS,response);
 
+    }
+
+
+    public Response createKyc(String authHeader, CreateKycDto request) {
+        User user = validateUser(authHeader);
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+        CreateMerchantResponseDTO response;
+        try {
+            response = webClientBuilder
+                    .build()
+                    .post()
+                    .uri(createKyc)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .syncBody(request)
+                    .retrieve()
+                    .bodyToMono(CreateMerchantResponseDTO.class)
+                    .block();
+        }catch (Exception e){
+            log.error("error creating kyc for user {}",createKyc);
+            return new Response(FAILED_CODE,FAILED,"error creating kyc for user "+request.getCustomerEmail()+"Error = "+e.getMessage()) ;
+        }
+        log.info("kyc created");
+        return new Response(SUCCESS_CODE,SUCCESS,response);
     }
 
 
