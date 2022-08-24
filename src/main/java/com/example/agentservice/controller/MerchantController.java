@@ -27,6 +27,18 @@ public class MerchantController {
         }
     }
 
+
+    @PostMapping(SEARCH_MERCHANT)
+    public ResponseEntity<Response> searchMerchant(@RequestHeader("Authorization") String authHeader,
+                                                                    @RequestBody SearchDto request){
+        try {
+            return new ResponseEntity<>(merchantService.searchMerchant(authHeader, request), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("updateMerchantUserID")
     public ResponseEntity<Response> updateMerchantUserID(@RequestBody UpdateMerchantIDRequest request){
         try {
