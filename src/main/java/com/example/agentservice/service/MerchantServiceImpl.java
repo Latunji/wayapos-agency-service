@@ -100,7 +100,6 @@ public class MerchantServiceImpl implements MerchantService {
         requestDTO.setOrgPhone(merchants.getOrgPhone());
 
         CreateMerchantResponseDTO responseDTO = userService.createMerchant(createMerchantUrl,requestDTO);
-//        CreateMerchantResponseDTO kycResponseDTO = userService.createKyc()
         if (responseDTO.isStatus()){
             Short num = 0;
             String uid = String.valueOf(new Date().getTime());
@@ -145,25 +144,39 @@ public class MerchantServiceImpl implements MerchantService {
             log.error("merchant with ID {} not found ",user.getData().getEmail());
             return new Response(FAILED_CODE,FAILED,"Merchant with email "+user.getData().getEmail()+ " not found");
         }
-        log.info("merchant gotten {} ",merchants);
-        merchants.setFirstname(merchantDto.getFirstName());
-        merchants.setSurname(merchantDto.getSurname());
-        merchants.setDob(merchantDto.getDateOfBirth());
-        merchants.setGender(merchantDto.getGender());
-        merchants.setCity(merchantDto.getCity());
-        merchants.setPhoneNumber(merchantDto.getPhoneNumber());
-        merchants.setOfficeAddress(merchantDto.getOfficeAddress());
-        merchants.setModifiedAt(new Date());
-        merchants.setUserId(user.getData().getId());
-        log.info("Merchant updated to {}",merchants);
-        Merchants save = merchantRepository.save(merchants);
 
-        executors.submit(() ->logService.sendLogs(AuditDto.builder()
-                .userID(user.getData().getId())
-                .activity(user.getData().getFirstName()+" updated a merchant "+"Name:"+
-                        save.getFirstname()+" ID: "+save.getMerchantId())
-                .build()) );
-        return new Response(SUCCESS_CODE,SUCCESS,save);
+        //createKycForCustomer
+        CreateKycDto createKycDto = new CreateKycDto();
+        createKycDto.setCustomerEmail(merchants.getEmail());
+        createKycDto.setCustomerName(merchants.getFirstname() +" "+merchants.getSurname());
+        createKycDto.setCustomerPhoneNumber(merchants.getPhoneNumber());
+
+
+        CreateMerchantResponseDTO kycResponseDTO = userService.createKyc(authHeader, createKycDto);
+        if(kycResponseDTO.isStatus()) {
+            log.info("merchant gotten {} ", merchants);
+            merchants.setFirstname(merchantDto.getFirstName());
+            merchants.setSurname(merchantDto.getSurname());
+            merchants.setDob(merchantDto.getDateOfBirth());
+            merchants.setGender(merchantDto.getGender());
+            merchants.setCity(merchantDto.getCity());
+            merchants.setPhoneNumber(merchantDto.getPhoneNumber());
+            merchants.setOfficeAddress(merchantDto.getOfficeAddress());
+            merchants.setModifiedAt(new Date());
+            merchants.setUserId(user.getData().getId());
+            log.info("Merchant updated to {}", merchants);
+            Merchants save = merchantRepository.save(merchants);
+
+            executors.submit(() ->logService.sendLogs(AuditDto.builder()
+                    .userID(user.getData().getId())
+                    .activity(user.getData().getFirstName()+" updated a merchant "+"Name:"+
+                            save.getFirstname()+" ID: "+save.getMerchantId())
+                    .build()) );
+
+            return new Response(SUCCESS_CODE,SUCCESS,save);
+        }
+
+        return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
     }
 
     @Override
