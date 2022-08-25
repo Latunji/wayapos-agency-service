@@ -173,6 +173,7 @@ public class UserService {
     }
 
 
+
     public CreateMerchantResponseDTO createKyc(String authHeader, CreateKycDto request) {
         User user = validateUser(authHeader);
         if (Objects.isNull(user)){
