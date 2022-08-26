@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.net.URI;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 import static com.example.agentservice.constants.Constants.*;
@@ -174,13 +175,13 @@ public class UserService {
 
 
 
-    public CreateMerchantResponseDTO createKyc(String authHeader, CreateKycDto request) {
+    public KycResponseDto createKyc(String authHeader, CreateKycDto request) {
         User user = validateUser(authHeader);
         if (Objects.isNull(user)){
             log.error("user validation failed");
-            return new CreateMerchantResponseDTO("","User Validation Failed",false, 0L);
+            return new KycResponseDto("","User Validation Failed",false, new Date());
         }
-        CreateMerchantResponseDTO response;
+        KycResponseDto response = null;
         log.info("kyc object to be created......"+request);
         try {
             response = webClientBuilder
@@ -188,13 +189,14 @@ public class UserService {
                     .post()
                     .uri(createKyc)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", authHeader)
                     .syncBody(request)
                     .retrieve()
-                    .bodyToMono(CreateMerchantResponseDTO.class)
+                    .bodyToMono(KycResponseDto.class)
                     .block();
         }catch (Exception e){
             log.error("error creating kyc for user {}",createKyc);
-            return new CreateMerchantResponseDTO("",FAILED,false, 0L);
+            return new KycResponseDto(response.toString(), FAILED,false, new Date());
         }
         log.info("kyc created..."+response);
         return response;
