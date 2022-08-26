@@ -181,7 +181,7 @@ public class UserService {
             return new CreateMerchantResponseDTO("","User Validation Failed",false, 0L);
         }
         CreateMerchantResponseDTO response;
-        log.info("kyc object to be created..."+request);
+        log.info("kyc object to be created......"+request);
         try {
             response = webClientBuilder
                     .build()
