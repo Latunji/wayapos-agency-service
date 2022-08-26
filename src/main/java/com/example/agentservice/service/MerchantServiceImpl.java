@@ -150,6 +150,7 @@ public class MerchantServiceImpl implements MerchantService {
         createKycDto.setCustomerEmail(merchants.getEmail());
         createKycDto.setCustomerName(merchants.getFirstname() +" "+merchants.getSurname());
         createKycDto.setCustomerPhoneNumber(merchants.getPhoneNumber());
+        createKycDto.setCustomerId(Long.valueOf(user.getData().getId()));
 
         log.info("creating kyc for user..........");
 
