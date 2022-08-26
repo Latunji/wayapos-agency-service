@@ -9,10 +9,13 @@ import com.example.agentservice.repository.MerchantRepository;
 import com.example.agentservice.repository.TerminalRepository;
 import com.example.agentservice.repository.WayaPosUsersRepository;
 import com.example.agentservice.util.Response;
+import com.example.agentservice.util.RestCall;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.persistence.Column;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,6 +55,12 @@ public class MerchantServiceImpl implements MerchantService {
     private final WayaPosUsersRepository wayaPosUsersRepository;
     Response response = new Response();
     private final Gson gson;
+
+    @Value("${kyc.endpoint.createkyc}")
+    String createKyc;
+
+    @Autowired
+    private RestCall restCall;
     @Override
     public CreateMerchantResponseDTO registerMerchant(MerchantDto merchantDto) throws Exception {
 
@@ -127,7 +137,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto) {
+    public Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto) throws IOException {
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
@@ -155,7 +165,10 @@ public class MerchantServiceImpl implements MerchantService {
         log.info("creating kyc for user..........");
 
 //        KycResponseDto kycResponseDTO = userService.createKyc(authHeader, createKycDto);
-//        if(kycResponseDTO.isStatus()) {
+        KycResponseDto kycResponseDto = new KycResponseDto();
+        JSONObject jsonObject = new JSONObject(restCall.executeRequest(authHeader, createKycDto, createKyc));
+        boolean stat = Boolean.valueOf(jsonObject.get("status").toString());
+        if(stat) {
             log.info("merchant gotten {} ", merchants);
             merchants.setFirstname(merchantDto.getFirstName());
             merchants.setSurname(merchantDto.getSurname());
@@ -176,9 +189,9 @@ public class MerchantServiceImpl implements MerchantService {
                     .build()) );
 
             return new Response(SUCCESS_CODE,SUCCESS,save);
-//        }
-//
-//        return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
+        }
+        log.info("Error creating kyc... "+jsonObject);
+        return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
     }
 
     @Override
