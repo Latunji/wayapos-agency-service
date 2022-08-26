@@ -3,9 +3,11 @@ package com.example.agentservice.service;
 import com.example.agentservice.dto.*;
 import com.example.agentservice.util.Response;
 
+import java.io.IOException;
+
 public interface MerchantService {
     CreateMerchantResponseDTO registerMerchant(MerchantDto merchantDto) throws Exception;
-    Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto);
+    Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto) throws IOException;
     Response viewMerchantById(String authHeader, Long merchantId);
 
     Response searchMerchant(String authHeader, SearchDto searchDto);

@@ -6,10 +6,12 @@ import com.example.agentservice.model.User;
 import com.example.agentservice.model.WayaPosUsers;
 import com.example.agentservice.repository.WayaPosUsersRepository;
 import com.example.agentservice.util.Response;
+import com.example.agentservice.util.RestCall;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,9 @@ public class UserService {
     String getAllPriviledgesUrl;
     @Value("${user.auth.endpoint.getRoles}")
     String getAllRoles;
+
+    @Autowired
+    private RestCall restCall;
 
     @Value("${kyc.endpoint.createkyc}")
     String createKyc;
@@ -183,6 +188,7 @@ public class UserService {
         }
         KycResponseDto response = null;
         log.info("kyc object to be created......"+request);
+
         try {
             response = webClientBuilder
                     .build()
