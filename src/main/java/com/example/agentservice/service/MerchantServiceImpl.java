@@ -154,7 +154,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         log.info("creating kyc for user..........");
 
-        CreateMerchantResponseDTO kycResponseDTO = userService.createKyc(authHeader, createKycDto);
+        KycResponseDto kycResponseDTO = userService.createKyc(authHeader, createKycDto);
         if(kycResponseDTO.isStatus()) {
             log.info("merchant gotten {} ", merchants);
             merchants.setFirstname(merchantDto.getFirstName());
