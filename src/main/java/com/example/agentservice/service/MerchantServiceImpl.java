@@ -100,7 +100,6 @@ public class MerchantServiceImpl implements MerchantService {
         requestDTO.setOrgPhone(merchants.getOrgPhone());
 
         CreateMerchantResponseDTO responseDTO = userService.createMerchant(createMerchantUrl,requestDTO);
-//        CreateMerchantResponseDTO kycResponseDTO = userService.createKyc()
         if (responseDTO.isStatus()){
             Short num = 0;
             String uid = String.valueOf(new Date().getTime());
@@ -186,23 +185,23 @@ public class MerchantServiceImpl implements MerchantService {
         User user = userService.validateUser(authHeader);
 
         //validate user is not null
-        if (Objects.isNull(user)) {
+        if (Objects.isNull(user)){
             log.error("user validation failed");
-            return new Response(FAILED_CODE, FAILED, "Validation Failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
         Merchants merchants = merchantRepository.findById(merchantId).orElse(null);
-        if (merchants == null) {
-            log.error("merchant not found for id {}", merchants);
-            return new Response(FAILED_CODE, FAILED, "merchants not found for id " + merchantId);
+        if (merchants==null){
+            log.error("merchant not found for id {}",merchants);
+            return new Response(FAILED_CODE,FAILED,"merchants not found for id "+merchantId);
         }
-        log.info("merchant gotten for ID {} is {}", merchantId, merchants);
-        executors.submit(() -> logService.sendLogs(AuditDto.builder()
+        log.info("merchant gotten for ID {} is {}",merchantId,merchants);
+        executors.submit(() ->logService.sendLogs(AuditDto.builder()
                 .userID(user.getData().getId())
-                .activity(user.getData().getFirstName() + " viewd merchants " + "Name:" +
-                        merchants.getFirstname() + " ID: " + merchants.getMerchantId())
-                .build()));
-        return new Response(SUCCESS_CODE, SUCCESS, merchants);
+                .activity(user.getData().getFirstName()+" viewd merchants "+"Name:"+
+                        merchants.getFirstname()+" ID: "+merchants.getMerchantId())
+                .build()) );
+        return new Response(SUCCESS_CODE,SUCCESS,merchants);
     }
 
     @Override
