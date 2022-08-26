@@ -154,8 +154,8 @@ public class MerchantServiceImpl implements MerchantService {
 
         log.info("creating kyc for user..........");
 
-        KycResponseDto kycResponseDTO = userService.createKyc(authHeader, createKycDto);
-        if(kycResponseDTO.isStatus()) {
+//        KycResponseDto kycResponseDTO = userService.createKyc(authHeader, createKycDto);
+//        if(kycResponseDTO.isStatus()) {
             log.info("merchant gotten {} ", merchants);
             merchants.setFirstname(merchantDto.getFirstName());
             merchants.setSurname(merchantDto.getSurname());
@@ -176,9 +176,9 @@ public class MerchantServiceImpl implements MerchantService {
                     .build()) );
 
             return new Response(SUCCESS_CODE,SUCCESS,save);
-        }
-
-        return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
+//        }
+//
+//        return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
     }
 
     @Override
