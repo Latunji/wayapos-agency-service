@@ -57,5 +57,5 @@ user:
 
 kyc:
   endpoint:
-    createkyc: https://services.staging.wayapos.ng/kyc-service/kyc/createkyc
+    createkyc: https://services.staging.wayapos.ng/kyc-service/kyc/wayaPos/createkyc
     addkyc: https://services.staging.wayapos.ng/kyc-service/kyc/manage-requirement/admin/add
