@@ -59,6 +59,9 @@ public class MerchantServiceImpl implements MerchantService {
     @Value("${kyc.endpoint.createkyc}")
     String createKyc;
 
+    @Value("${kyc.endpoint.addkyc}")
+    String addKyc;
+
     @Autowired
     private RestCall restCall;
     @Override
@@ -101,7 +104,6 @@ public class MerchantServiceImpl implements MerchantService {
                     .data("merchant already exist with name "+ merchantDto.getEmail())
                     .build();
         }
-
 
 
         CreateMerchantRequestDTO requestDTO = new CreateMerchantRequestDTO();
@@ -164,8 +166,13 @@ public class MerchantServiceImpl implements MerchantService {
 
         log.info("creating kyc for user..........");
 
-//        KycResponseDto kycResponseDTO = userService.createKyc(authHeader, createKycDto);
-        KycResponseDto kycResponseDto = new KycResponseDto();
+//        KycResponseDto kycDto = userService.createKyc(authHeader, createKycDto);
+//        AddRequirementDto addRequirementDto = new AddRequirementDto();
+//        addRequirementDto.setCustomerId(Long.valueOf(user.getData().getId()));
+//        addRequirementDto.setReqValue("BUSINESS TYPE");
+//        addRequirementDto.setReqValue(merchants.getBusinessType());
+//        JSONObject addObj = new JSONObject(restCall.executeRequest(authHeader, createKycDto, addKyc));
+//        boolean addObjResp = Boolean.valueOf(addObj.get("status").toString());
         JSONObject jsonObject = new JSONObject(restCall.executeRequest(authHeader, createKycDto, createKyc));
         boolean stat = Boolean.valueOf(jsonObject.get("status").toString());
         if(stat) {
