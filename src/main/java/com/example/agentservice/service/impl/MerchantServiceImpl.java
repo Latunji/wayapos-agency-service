@@ -1,13 +1,13 @@
-package com.example.agentservice.service;
+package com.example.agentservice.service.impl;
 
 import com.example.agentservice.dto.*;
 import com.example.agentservice.model.Merchants;
 import com.example.agentservice.model.Terminal;
 import com.example.agentservice.model.User;
-import com.example.agentservice.model.WayaPosUsers;
 import com.example.agentservice.repository.MerchantRepository;
 import com.example.agentservice.repository.TerminalRepository;
 import com.example.agentservice.repository.WayaPosUsersRepository;
+import com.example.agentservice.service.MerchantService;
 import com.example.agentservice.util.Response;
 import com.example.agentservice.util.RestCall;
 import com.google.gson.Gson;
@@ -26,12 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.persistence.Column;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static com.example.agentservice.constants.Constants.*;
 
@@ -544,6 +542,28 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
 
+    }
+
+
+    @Override
+    public Response getMerchantUserMetrics(String token) {
+        try {
+            User user = userService.validateUser(token);
+            if(Objects.isNull(user)){
+                return  new Response(FAILED_CODE,FAILED,"Validation failed");
+            }
+            UserMetrics metrics = new UserMetrics();
+            metrics.setActiveUser(merchantRepository.countByActive(Boolean.TRUE));
+            metrics.setInActiveUser(merchantRepository.countByActive(Boolean.FALSE));
+            metrics.setActiveAdminUser(merchantRepository.countByActiveAndAdmin(Boolean.TRUE,Boolean.TRUE));
+            metrics.setInActiveAdminUser(merchantRepository.countByActiveAndAdmin(Boolean.FALSE,Boolean.FALSE));
+            metrics.setTotalUser(merchantRepository.count());
+
+            return  new Response(SUCCESS_CODE,SUCCESS,metrics);
+        }catch (Exception ex){
+            log.info("An err: {} ",ex.getMessage());
+            return  new Response(FAILED_CODE,FAILED,"An error occurred, try again later");
+        }
     }
 
     public static String padright(String s, int len, char c) throws Exception {

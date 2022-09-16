@@ -31,4 +31,5 @@ public interface MerchantService {
     Response getMerchantBalance(String authHeader, String request);
 
     Response updateMerchantUserID(UpdateMerchantIDRequest request);
+    Response getMerchantUserMetrics(String token);
 }

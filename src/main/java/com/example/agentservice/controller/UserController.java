@@ -1,8 +1,7 @@
 package com.example.agentservice.controller;
 
 import com.example.agentservice.dto.CreateUserDTO;
-import com.example.agentservice.service.MerchantService;
-import com.example.agentservice.service.UserService;
+import com.example.agentservice.service.impl.UserService;
 import com.example.agentservice.util.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
