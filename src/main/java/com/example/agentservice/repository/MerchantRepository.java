@@ -18,4 +18,6 @@ public interface MerchantRepository extends JpaRepository<Merchants,Long> {
 
     Optional<Merchants> findByUserId(String userId);
     List<Merchants> findByAdmin(boolean email);
+    long countByActive(Boolean active);
+    long countByActiveAndAdmin(Boolean active, Boolean admin);
 }

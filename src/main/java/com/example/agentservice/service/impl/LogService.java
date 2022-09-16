@@ -1,4 +1,4 @@
-package com.example.agentservice.service;
+package com.example.agentservice.service.impl;
 
 import com.example.agentservice.dto.AuditDto;
 import com.example.agentservice.model.User;
