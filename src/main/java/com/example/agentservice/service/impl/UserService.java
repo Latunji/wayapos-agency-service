@@ -1,4 +1,4 @@
-package com.example.agentservice.service;
+package com.example.agentservice.service.impl;
 
 import com.example.agentservice.dto.*;
 import com.example.agentservice.dto.priviledgesDTO.Root;

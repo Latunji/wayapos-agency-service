@@ -218,6 +218,19 @@ public class MerchantController {
     }
 
 
+    @GetMapping(path = "/metrics")
+    public ResponseEntity<Response> findMerchantMetrics(
+            @RequestHeader("Authorization") String authHeader){
+        try {
+            Response response = merchantService.getMerchantUserMetrics(authHeader);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {} ",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
     @RequestMapping(
             value = "/**",
             method = RequestMethod.OPTIONS
