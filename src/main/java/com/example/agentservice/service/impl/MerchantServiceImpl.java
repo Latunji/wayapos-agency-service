@@ -11,7 +11,6 @@ import com.example.agentservice.service.MerchantService;
 import com.example.agentservice.util.Response;
 import com.example.agentservice.util.RestCall;
 import com.google.gson.Gson;
-import jdk.jpackage.internal.Log;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -43,7 +42,6 @@ public class MerchantServiceImpl implements MerchantService {
     String createMerchantUrl;
     @Value("${walletbalanceurl}")
     String walletBalanceUrl;
-
     @Value("${user.addbank}")
     String addBankUrl;
 
@@ -226,8 +224,6 @@ public class MerchantServiceImpl implements MerchantService {
                 .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,merchants);
     }
-
-
 
     @Override
     public Response updateSettlementAccount(String token, SettlementDto settlementDto) {
