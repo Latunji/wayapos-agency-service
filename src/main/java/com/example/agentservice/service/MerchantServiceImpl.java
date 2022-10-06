@@ -11,6 +11,7 @@ import com.example.agentservice.repository.WayaPosUsersRepository;
 import com.example.agentservice.util.Response;
 import com.example.agentservice.util.RestCall;
 import com.google.gson.Gson;
+import jdk.jpackage.internal.Log;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -44,6 +45,9 @@ public class MerchantServiceImpl implements MerchantService {
     String createMerchantUrl;
     @Value("${walletbalanceurl}")
     String walletBalanceUrl;
+
+    @Value("${user.addbank}")
+    String addBankUrl;
 
     private final ModelMapper modelMapper;
     private final RestTemplate restTemplate;
@@ -223,6 +227,59 @@ public class MerchantServiceImpl implements MerchantService {
                         merchants.getFirstname()+" ID: "+merchants.getMerchantId())
                 .build()) );
         return new Response(SUCCESS_CODE,SUCCESS,merchants);
+    }
+
+
+
+    @Override
+    public Response updateSettlementAccount(String token, SettlementDto settlementDto) {
+        User user = userService.validateUser(token);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+
+        Merchants merchants = merchantRepository.findByUserId(settlementDto.getUserId()).orElse(null);
+        if(merchants == null){
+            return new Response(FAILED_CODE, FAILED, "Merchant cannot be found");
+        }
+        merchants.setSettlementBankAccount(settlementDto.getAccountNumber());
+        merchants.setSettlementBankCode(settlementDto.getBankCode());
+        merchantRepository.save(merchants);
+
+        return new Response(SUCCESS_CODE, SUCCESS, "Settlement Account Updated");
+    }
+
+
+    @Override
+    public Response addBankAccount(String token, BankAccountDto bankAccountDto) {
+        User user = userService.validateUser(token);
+        JSONObject jsonObject = new JSONObject();
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+
+        Merchants merchants = merchantRepository.findByUserId(bankAccountDto.getUserId()).orElse(null);
+        if(merchants == null){
+            return new Response(FAILED_CODE, FAILED, "Merchant cannot be found");
+        }
+        try {
+            jsonObject = new JSONObject(restCall.addBanks(token, bankAccountDto, addBankUrl));
+        }
+        catch (Exception ex){
+            Log.info("Error occured adding Bank...."+ex.getMessage());
+            return new Response(FAILED_CODE, FAILED, "Error occured adding Bank...."+ex.getMessage());
+        }
+        if(jsonObject.get("data").toString() == "true"){
+            return  new Response(SUCCESS_CODE, SUCCESS, "Bank Account Added Successfully");
+        }else{
+            return new Response(FAILED_CODE, FAILED, "Bank Account Could Not Be Added");
+        }
+
     }
 
     @Override

@@ -28,6 +28,28 @@ public class MerchantController {
     }
 
 
+//    @PostMapping(UPDATE_SETTLEMENT_ACCOUNT)
+//    public ResponseEntity<Response> updateSettlementAccount(@RequestHeader("Authorization") String authHeader, @RequestBody SettlementDto request){
+//        try {
+//            return new ResponseEntity<Response>(merchantService.updateSettlementAccount(authHeader, request), HttpStatus.OK);
+//        }catch (Exception e){
+//            log.info("Error is {}",e.getMessage());
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
+
+
+    @PostMapping(ADD_BANK_ACCOUNT)
+    public ResponseEntity<Response> addBankAccount(@RequestHeader("Authorization") String authHeader, @RequestBody BankAccountDto request){
+        try {
+            return new ResponseEntity<Response>(merchantService.addBankAccount(authHeader, request), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     @PostMapping(SEARCH_MERCHANT)
     public ResponseEntity<Response> searchMerchant(@RequestHeader("Authorization") String authHeader,
                                                                     @RequestBody SearchDto request){

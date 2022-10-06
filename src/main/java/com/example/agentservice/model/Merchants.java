@@ -52,5 +52,7 @@ public class Merchants implements Serializable {
     private String officeAddress;
     private String businessType;
     private String orgPhone;
+    private String settlementBankAccount;
+    private String settlementBankCode;
 
 }

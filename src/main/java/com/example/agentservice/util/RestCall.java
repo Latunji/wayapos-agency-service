@@ -1,6 +1,7 @@
 package com.example.agentservice.util;
 
 import com.example.agentservice.dto.AddRequirementDto;
+import com.example.agentservice.dto.BankAccountDto;
 import com.example.agentservice.dto.CreateKycDto;
 import com.example.agentservice.dto.KycResponseDto;
 import lombok.Data;
@@ -30,6 +31,46 @@ public class RestCall {
         js.put("customerEmail", createKycDto.getCustomerEmail());
         try {
             URL url = new URL(createKycUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", token);
+            connection.setDoOutput(true);
+
+            String dataToSend = js.toString();
+            System.out.println("Data To Send..."+dataToSend);
+            try ( OutputStream wr = connection.getOutputStream()) {
+                byte[] in = dataToSend.getBytes(StandardCharsets.UTF_8);
+                wr.write(in, 0, in.length);
+            }
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder myResponse = new StringBuilder();
+            String my_response;
+            while ((my_response = rd.readLine()) != null) {
+                myResponse.append(my_response);
+            }
+            return myResponse.toString();
+        } catch (IOException e) {
+            log.info("error... "+e.toString());
+            return null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+
+    public String addBanks(String token, BankAccountDto bankAccountDto, String addBankUrl) throws JSONException, IOException {
+        HttpURLConnection connection = null;
+        JSONObject js = new JSONObject();
+        js.put("accountName", bankAccountDto.getAccountName());
+        js.put("accountNumber", bankAccountDto.getAccountNumber());
+        js.put("bankName", bankAccountDto.getBankName());
+        js.put("bankCode", bankAccountDto.getBankCode());
+        try {
+            URL url = new URL(addBankUrl+"/"+bankAccountDto.getUserId());
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");

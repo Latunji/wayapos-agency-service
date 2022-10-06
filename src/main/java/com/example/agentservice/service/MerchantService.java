@@ -10,6 +10,10 @@ public interface MerchantService {
     Response updateMerchant(String authHeader, MerchantUpdateDto merchantDto) throws IOException;
     Response viewMerchantById(String authHeader, Long merchantId);
 
+    Response updateSettlementAccount(String token, SettlementDto settlementDto);
+
+    Response addBankAccount(String token, BankAccountDto bankAccountDto);
+
     Response searchMerchant(String authHeader, SearchDto searchDto);
 
     Response viewMerchantByUserId(String authHeader, String userId);
