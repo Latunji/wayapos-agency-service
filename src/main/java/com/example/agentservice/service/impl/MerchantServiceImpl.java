@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import static com.example.agentservice.constants.Constants.*;
 
@@ -264,8 +265,7 @@ public class MerchantServiceImpl implements MerchantService {
             jsonObject = new JSONObject(restCall.addBanks(token, bankAccountDto, addBankUrl));
         }
         catch (Exception ex){
-            Log.info("Error occured adding Bank...."+ex.getMessage());
-            return new Response(FAILED_CODE, FAILED, "Error occured adding Bank...."+ex.getMessage());
+          return new Response(FAILED_CODE, FAILED, "Error occured adding Bank...."+ex.getMessage());
         }
         if(jsonObject.get("data").toString() == "true"){
             return  new Response(SUCCESS_CODE, SUCCESS, "Bank Account Added Successfully");
