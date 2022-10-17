@@ -239,11 +239,10 @@ public class MerchantServiceImpl implements MerchantService {
         if(merchants == null){
             return new Response(FAILED_CODE, FAILED, "Merchant cannot be found");
         }
-        merchants.setSettlementBankAccount(settlementDto.getAccountNumber());
-        merchants.setSettlementBankCode(settlementDto.getBankCode());
+        merchants.setSettlementType(settlementDto.getSettlementType());
         merchantRepository.save(merchants);
 
-        return new Response(SUCCESS_CODE, SUCCESS, "Settlement Account Updated");
+        return new Response(SUCCESS_CODE, SUCCESS, "Settlement Type Updated");
     }
 
 
