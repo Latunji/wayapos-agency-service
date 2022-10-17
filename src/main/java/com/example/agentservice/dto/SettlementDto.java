@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class SettlementDto {
 
-    private String accountNumber;
-    private String bankCode;
+    private SettlementType settlementType;
     private String userId;
 }

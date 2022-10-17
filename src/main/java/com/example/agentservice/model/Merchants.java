@@ -1,5 +1,6 @@
 package com.example.agentservice.model;
 
+import com.example.agentservice.dto.SettlementType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,5 +55,6 @@ public class Merchants implements Serializable {
     private String orgPhone;
     private String settlementBankAccount;
     private String settlementBankCode;
+    private SettlementType settlementType;
 
 }

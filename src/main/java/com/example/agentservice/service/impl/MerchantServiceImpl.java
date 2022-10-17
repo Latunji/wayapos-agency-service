@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import static com.example.agentservice.constants.Constants.*;
 
@@ -239,11 +240,10 @@ public class MerchantServiceImpl implements MerchantService {
         if(merchants == null){
             return new Response(FAILED_CODE, FAILED, "Merchant cannot be found");
         }
-        merchants.setSettlementBankAccount(settlementDto.getAccountNumber());
-        merchants.setSettlementBankCode(settlementDto.getBankCode());
+        merchants.setSettlementType(settlementDto.getSettlementType());
         merchantRepository.save(merchants);
 
-        return new Response(SUCCESS_CODE, SUCCESS, "Settlement Account Updated");
+        return new Response(SUCCESS_CODE, SUCCESS, "Settlement Type Updated");
     }
 
 
@@ -265,8 +265,7 @@ public class MerchantServiceImpl implements MerchantService {
             jsonObject = new JSONObject(restCall.addBanks(token, bankAccountDto, addBankUrl));
         }
         catch (Exception ex){
-            Log.info("Error occured adding Bank...."+ex.getMessage());
-            return new Response(FAILED_CODE, FAILED, "Error occured adding Bank...."+ex.getMessage());
+          return new Response(FAILED_CODE, FAILED, "Error occured adding Bank...."+ex.getMessage());
         }
         if(jsonObject.get("data").toString() == "true"){
             return  new Response(SUCCESS_CODE, SUCCESS, "Bank Account Added Successfully");
