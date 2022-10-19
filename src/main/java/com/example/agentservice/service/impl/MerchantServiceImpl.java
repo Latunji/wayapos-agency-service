@@ -187,6 +187,7 @@ public class MerchantServiceImpl implements MerchantService {
             merchants.setOfficeAddress(merchantDto.getOfficeAddress());
             merchants.setModifiedAt(new Date());
             merchants.setUserId(user.getData().getId());
+            merchants.setActive(Boolean.TRUE);
             log.info("Merchant updated to {}", merchants);
             Merchants save = merchantRepository.save(merchants);
 
@@ -200,6 +201,25 @@ public class MerchantServiceImpl implements MerchantService {
         }
         log.info("Error creating kyc... "+jsonObject);
         return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
+    }
+
+
+    @Override
+    public Response checkUpdateFlag(String token, String userId){
+        User user = userService.validateUser(token);
+
+        //validate user is not null
+        if (Objects.isNull(user)){
+            log.error("user validation failed");
+            return new Response(FAILED_CODE,FAILED,"Validation Failed");
+        }
+        Merchants merchants = merchantRepository.findByUserId(userId).orElse(null);
+        if(merchants == null){
+            log.error("merchant not found for id {}",merchants);
+            return new Response(FAILED_CODE,FAILED,"merchants not found for id "+userId);
+        }
+        return new Response(SUCCESS_CODE,SUCCESS, merchants.getUpdateFlag());
+
     }
 
     @Override

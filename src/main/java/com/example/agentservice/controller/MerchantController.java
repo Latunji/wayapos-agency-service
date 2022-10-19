@@ -198,6 +198,17 @@ public class MerchantController {
         }
     }
 
+    @GetMapping("checkupdateflag/{userId}")
+    public ResponseEntity<Response> checkUpdateFlag(@RequestHeader("Authorization") String authHeader,
+                                                    @PathVariable("userId") String userId){
+        try {
+            return new ResponseEntity<>(merchantService.checkUpdateFlag(authHeader, userId), HttpStatus.OK);
+        }catch (Exception e){
+            log.info("Error is {}",e.getMessage());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("getByAdminType")
     public ResponseEntity<Response> getByAdminType(@RequestHeader("Authorization") String authHeader,@RequestBody boolean request){
         try {

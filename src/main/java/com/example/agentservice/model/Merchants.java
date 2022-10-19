@@ -56,5 +56,6 @@ public class Merchants implements Serializable {
     private String settlementBankAccount;
     private String settlementBankCode;
     private SettlementType settlementType;
+    private Boolean updateFlag;
 
 }
