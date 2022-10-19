@@ -14,6 +14,8 @@ public interface MerchantService {
 
     Response addBankAccount(String token, BankAccountDto bankAccountDto);
 
+    Response checkUpdateFlag(String token, String userId);
+
     Response searchMerchant(String authHeader, SearchDto searchDto);
 
     Response viewMerchantByUserId(String authHeader, String userId);
