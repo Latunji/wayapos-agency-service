@@ -23,10 +23,10 @@ import java.util.List;
 public class SwaggerConfig {
 
     public static final Contact DEFAULT_CONTACT = new Contact(
-            "WayaPay Agent API", "http://www.test.com", "omonigho.joshua@outlook.com");
+            "WayaPos Agent API", "http://www.test.com", "omonigho.joshua@outlook.com");
 
     public static final ApiInfo DEFAULT_API_INFO = new ApiInfo(
-            "WayaPay Agent APIs", "WayaPay API Docs", "1.0",
+            "WayaPos Agent APIs", "WayaPos API Docs", "1.0",
             "urn:tos", DEFAULT_CONTACT,
             "Joshua", "http://www.test.com", Collections.EMPTY_LIST);
 
