@@ -90,10 +90,8 @@ public class MerchantServiceImpl implements MerchantService {
                 .officeAddress(merchantDto.getOfficeAddress())
                 .referenceCode(merchantDto.getReferenceCode())
                 .orgPhone("234"+merchantDto.getOrgPhone().substring(1))
+                .settlementType(SettlementType.INSTANT)
                 .build();
-
-
-
 
         Merchants merchants1 = merchantRepository.findByEmail(merchants.getEmail()).orElse(null);
         if (merchants1!=null){
@@ -121,11 +119,7 @@ public class MerchantServiceImpl implements MerchantService {
             merchants.setDeleted(num);
             merchants.setModifiedAt(new Date());
 
-            log.info("merchant to be saved  {}",merchants);
-
             Merchants save = merchantRepository.save(merchants);
-
-            log.info("merchants saved successfully {}",save);
 
             executors.execute(() ->logService.sendLogs(AuditDto.builder()
                     .userID(save.getUserId())
@@ -149,10 +143,8 @@ public class MerchantServiceImpl implements MerchantService {
             return new Response(FAILED_CODE,FAILED,"Validation Failed");
         }
 
-        log.info("Merchant LoggedIn Email is.. "+user.getData().getEmail());
         String loggedInEmail = user.getData().getEmail();
         Merchants merchants = merchantRepository.findByEmail(loggedInEmail).orElse(null);
-//        if (merchants.getEmail() != (user.getData().getEmail())){
         if (merchants == null){
             log.error("merchant with ID {} not found ",user.getData().getEmail());
             return new Response(FAILED_CODE,FAILED,"Merchant with email "+user.getData().getEmail()+ " not found");
@@ -164,20 +156,11 @@ public class MerchantServiceImpl implements MerchantService {
         createKycDto.setCustomerName(merchants.getFirstname() +" "+merchants.getSurname());
         createKycDto.setCustomerPhoneNumber(merchants.getPhoneNumber());
         createKycDto.setCustomerId(Long.valueOf(user.getData().getId()));
-
         log.info("creating kyc for user..........");
 
-//        KycResponseDto kycDto = userService.createKyc(authHeader, createKycDto);
-//        AddRequirementDto addRequirementDto = new AddRequirementDto();
-//        addRequirementDto.setCustomerId(Long.valueOf(user.getData().getId()));
-//        addRequirementDto.setReqValue("BUSINESS TYPE");
-//        addRequirementDto.setReqValue(merchants.getBusinessType());
-//        JSONObject addObj = new JSONObject(restCall.executeRequest(authHeader, createKycDto, addKyc));
-//        boolean addObjResp = Boolean.valueOf(addObj.get("status").toString());
         JSONObject jsonObject = new JSONObject(restCall.executeRequest(authHeader, createKycDto, createKyc));
         boolean stat = Boolean.valueOf(jsonObject.get("status").toString());
         if(stat) {
-            log.info("merchant gotten {} ", merchants);
             merchants.setFirstname(merchantDto.getFirstName());
             merchants.setSurname(merchantDto.getSurname());
             merchants.setDob(merchantDto.getDateOfBirth());
@@ -188,7 +171,9 @@ public class MerchantServiceImpl implements MerchantService {
             merchants.setModifiedAt(new Date());
             merchants.setUserId(user.getData().getId());
             merchants.setActive(Boolean.TRUE);
-            log.info("Merchant updated to {}", merchants);
+            if(Objects.isNull(merchants.getSettlementType()))
+                merchants.setSettlementType(SettlementType.INSTANT);
+
             Merchants save = merchantRepository.save(merchants);
 
             executors.submit(() ->logService.sendLogs(AuditDto.builder()
@@ -199,7 +184,6 @@ public class MerchantServiceImpl implements MerchantService {
 
             return new Response(SUCCESS_CODE,SUCCESS,save);
         }
-        log.info("Error creating kyc... "+jsonObject);
         return new Response(FAILED_CODE,FAILED,"Kyc Couldn't Be Created");
     }
 
