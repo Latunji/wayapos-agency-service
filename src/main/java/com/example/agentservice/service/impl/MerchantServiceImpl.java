@@ -1,10 +1,13 @@
 package com.example.agentservice.service.impl;
 
+import com.example.agentservice.constants.PricingStatus;
 import com.example.agentservice.dto.*;
 import com.example.agentservice.model.Merchants;
+import com.example.agentservice.model.Pricing;
 import com.example.agentservice.model.Terminal;
 import com.example.agentservice.model.User;
 import com.example.agentservice.repository.MerchantRepository;
+import com.example.agentservice.repository.PricingRepository;
 import com.example.agentservice.repository.TerminalRepository;
 import com.example.agentservice.repository.WayaPosUsersRepository;
 import com.example.agentservice.service.MerchantService;
@@ -27,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,6 +58,7 @@ public class MerchantServiceImpl implements MerchantService {
     private final TerminalRepository terminalRepository;
     private final LogService logService;
     private final WayaPosUsersRepository wayaPosUsersRepository;
+    private final PricingRepository pricingRepository;
     Response response = new Response();
     private final Gson gson;
 
@@ -104,7 +109,6 @@ public class MerchantServiceImpl implements MerchantService {
                     .build();
         }
 
-
         CreateMerchantRequestDTO requestDTO = new CreateMerchantRequestDTO();
         modelMapper.map(merchantDto,requestDTO);
         requestDTO.setPhoneNumber(merchants.getPhoneNumber());
@@ -127,9 +131,9 @@ public class MerchantServiceImpl implements MerchantService {
                             merchants.getFirstname()+" ID: "+merchants.getMerchantId())
                     .build()) );
 
-
+            //todo: create default pricing for merchant
+            createDefaultPricing(save.getUserId(),save.getOrgName(),"CARD");
         }
-
         return responseDTO;
     }
 
@@ -642,5 +646,23 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
 
+    private void createDefaultPricing(String userId, String name, String productType){
+        Pricing pricing = new Pricing();
+        pricing.setCreatedAt(new Date());
+        pricing.setPricingRate(new BigDecimal(1.50));
+        pricing.setAggregator(true);
+        pricing.setAgent(true);
+        pricing.setCreatedBy(userId);
+        pricing.setCap(new BigDecimal(2000));
+        pricing.setDeleted(false);
+        pricing.setDiscount(new BigDecimal(1.50));
+        pricing.setMerchant(true);
+        pricing.setProducts(productType);
+        pricing.setName(name);
+        pricing.setUpdatedAt(new Date());
+        pricing.setUserId(userId);
+        pricing.setStatus(PricingStatus.DEFAULT);
+        pricingRepository.save(pricing);
+    }
 
 }
