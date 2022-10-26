@@ -176,6 +176,7 @@ public class MerchantServiceImpl implements MerchantService {
             merchants.setModifiedAt(new Date());
             merchants.setUserId(user.getData().getId());
             merchants.setActive(Boolean.TRUE);
+            merchants.setUpdateFlag(Boolean.TRUE);
             if(Objects.isNull(merchants.getSettlementType()))
                 merchants.setSettlementType(SettlementType.INSTANT);
 
